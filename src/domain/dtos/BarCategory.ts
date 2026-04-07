@@ -1,8 +1,13 @@
 export type BarCategory =
-  | "CocktailBar"
-  | "RooftopBar"
+  | "HostessBar"
+  | "Pub"
   | "Club"
+  | "RooftopBar"
+  | "CocktailBar"
   | "SportsBar"
+  | "KaraokeBar"
   | "DiveBar"
   | "WineBar"
-  | "Lounge";
+  | "Lounge"
+  | "GayBar"
+  | "LiveMusic";
