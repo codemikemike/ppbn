@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { Star } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { barService } from "@/services/barService";
@@ -13,6 +14,35 @@ type PageProps = {
 const formatAverageRating = (averageRating: number | null) => {
   if (averageRating === null) return "No ratings yet";
   return averageRating.toFixed(1);
+};
+
+const formatReviewDate = (date: Date) =>
+  new Intl.DateTimeFormat("en-GB", {
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+  }).format(date);
+
+const StarRating = ({ rating }: { rating: number }) => {
+  const clamped = Math.max(0, Math.min(5, Math.round(rating)));
+
+  return (
+    <div className="flex items-center gap-1" aria-label={`${rating} out of 5`}>
+      {Array.from({ length: 5 }, (_, index) => {
+        const filled = index < clamped;
+        return (
+          <Star
+            key={index}
+            className={
+              filled
+                ? "h-4 w-4 fill-foreground text-foreground"
+                : "h-4 w-4 text-muted-foreground"
+            }
+          />
+        );
+      })}
+    </div>
+  );
 };
 
 export default async function BarDetailPage({ params }: PageProps) {
@@ -60,7 +90,12 @@ export default async function BarDetailPage({ params }: PageProps) {
               </div>
               <div>
                 <dt className="text-muted-foreground">Average rating</dt>
-                <dd>{formatAverageRating(bar.averageRating)}</dd>
+                <dd className="flex items-center gap-2">
+                  <span>{formatAverageRating(bar.averageRating)}</span>
+                  {bar.averageRating !== null ? (
+                    <StarRating rating={bar.averageRating} />
+                  ) : null}
+                </dd>
               </div>
             </dl>
 
@@ -80,29 +115,51 @@ export default async function BarDetailPage({ params }: PageProps) {
             <CardTitle>Reviews</CardTitle>
           </CardHeader>
           <CardContent>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <p className="text-sm text-muted-foreground">
+                Total reviews:{" "}
+                <span className="font-medium">{bar.reviews.length}</span>
+              </p>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-muted-foreground">Average</span>
+                <span className="text-sm font-medium">
+                  {bar.averageRating === null
+                    ? "—"
+                    : bar.averageRating.toFixed(1)}
+                </span>
+                {bar.averageRating !== null ? (
+                  <StarRating rating={bar.averageRating} />
+                ) : null}
+              </div>
+            </div>
+
             {bar.reviews.length === 0 ? (
               <p className="text-sm text-muted-foreground">No reviews yet.</p>
             ) : (
-              <div className="space-y-4">
+              <div className="mt-4 space-y-4">
                 {bar.reviews.map((review) => (
-                  <div key={review.id} className="rounded-md border p-4">
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
+                  <article key={review.id} className="rounded-md border p-4">
+                    <header className="flex items-start justify-between gap-4">
+                      <div className="space-y-1">
                         <p className="text-sm font-medium">
-                          {review.title ?? "Review"}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
                           {review.user.name ?? "Anonymous"}
                         </p>
+                        <p className="text-xs text-muted-foreground">
+                          {formatReviewDate(review.createdAt)}
+                        </p>
                       </div>
-                      <div className="text-sm font-medium">
-                        {review.rating}/5
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium">
+                          {review.rating}/5
+                        </span>
+                        <StarRating rating={review.rating} />
                       </div>
-                    </div>
+                    </header>
+
                     <p className="mt-3 whitespace-pre-line text-sm text-muted-foreground">
                       {review.content}
                     </p>
-                  </div>
+                  </article>
                 ))}
               </div>
             )}

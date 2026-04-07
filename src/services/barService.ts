@@ -1,5 +1,6 @@
 import type { BarDto } from "@/domain/dtos/BarDto";
 import type { BarDetailDto } from "@/domain/dtos/BarDetailDto";
+import type { ReviewDto } from "@/domain/dtos/ReviewDto";
 import type {
   BarListFilters,
   IBarRepository,
@@ -9,6 +10,7 @@ import { barRepository } from "@/repositories/barRepository";
 export type BarService = {
   listApprovedBars: (filters?: BarListFilters) => Promise<BarDto[]>;
   getApprovedBarBySlug: (slug: string) => Promise<BarDetailDto | null>;
+  listApprovedReviewsByBarSlug: (slug: string) => Promise<ReviewDto[] | null>;
 };
 
 /**
@@ -27,6 +29,18 @@ export const createBarService = (repo: IBarRepository): BarService => ({
     });
   },
   getApprovedBarBySlug: async (slug: string) => repo.findBySlug(slug),
+  listApprovedReviewsByBarSlug: async (slug: string) => {
+    const bar = await repo.findBySlug(slug);
+    if (!bar) return null;
+
+    return bar.reviews.map((review) => ({
+      id: review.id,
+      rating: review.rating,
+      comment: review.content,
+      createdAt: review.createdAt,
+      userName: review.user.name,
+    }));
+  },
 });
 
 /**
