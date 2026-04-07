@@ -3,24 +3,11 @@
 import "leaflet/dist/leaflet.css";
 
 import Link from "next/link";
+import { useEffect } from "react";
 import L from "leaflet";
-import markerIcon2x from "leaflet/dist/images/marker-icon-2x.png";
-import markerIcon from "leaflet/dist/images/marker-icon.png";
-import markerShadow from "leaflet/dist/images/marker-shadow.png";
 import { MapContainer, Marker, Popup, TileLayer } from "react-leaflet";
 
 import type { BarDto } from "@/domain/dtos/BarDto";
-
-/**
- * Leaflet icon configuration for Next.js bundlers.
- */
-delete (L.Icon.Default.prototype as unknown as { _getIconUrl?: unknown })
-  ._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: markerIcon2x.src,
-  iconUrl: markerIcon.src,
-  shadowUrl: markerShadow.src,
-});
 
 export type BarMapProps = {
   /**
@@ -36,6 +23,19 @@ const DEFAULT_ZOOM = 13;
  * Interactive bar map using Leaflet.
  */
 export default function BarMap({ bars }: BarMapProps) {
+  useEffect(() => {
+    // Fix Leaflet default marker icon
+    delete (L.Icon.Default.prototype as unknown as { _getIconUrl?: unknown })
+      ._getIconUrl;
+    L.Icon.Default.mergeOptions({
+      iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
+      iconRetinaUrl:
+        "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
+      shadowUrl:
+        "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
+    });
+  }, []);
+
   const markerBars = bars.filter(
     (bar): bar is BarDto & { latitude: number; longitude: number } =>
       typeof bar.latitude === "number" && typeof bar.longitude === "number",
