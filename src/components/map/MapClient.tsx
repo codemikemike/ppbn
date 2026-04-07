@@ -22,6 +22,9 @@ const BarMap = dynamic(() => import("@/components/map/BarMap"), {
 
 /**
  * Client wrapper for the interactive map (no SSR).
+ * @param props - Component props.
+ * @param props.bars - Bars to render as map markers.
+ * @returns The interactive map UI.
  */
 export default function MapClient({ bars }: MapClientProps) {
   return <BarMap bars={bars} />;
