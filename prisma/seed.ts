@@ -1,11 +1,9 @@
 import bcrypt from "bcryptjs";
 import pino from "pino";
 
-import { PrismaClient } from "../src/generated/prisma";
+import { db } from "../src/lib/db";
 
 const logger = pino({ name: "prisma-seed" });
-
-const prisma = new PrismaClient();
 
 const hashPassword = async (plainTextPassword: string): Promise<string> =>
   bcrypt.hash(plainTextPassword, 10);
@@ -22,7 +20,7 @@ async function main() {
     hashPassword(ownerPlainPassword),
   ]);
 
-  const adminUser = await prisma.user.upsert({
+  const adminUser = await db.user.upsert({
     where: { email: adminEmail },
     update: {
       role: "Admin",
@@ -38,7 +36,7 @@ async function main() {
     },
   });
 
-  const barOwnerUser = await prisma.user.upsert({
+  const barOwnerUser = await db.user.upsert({
     where: { email: ownerEmail },
     update: {
       role: "BarOwner",
@@ -127,7 +125,7 @@ async function main() {
 
   await Promise.all(
     bars.map((bar) =>
-      prisma.bar.upsert({
+      db.bar.upsert({
         where: { slug: bar.slug },
         update: {
           name: bar.name,
@@ -171,5 +169,5 @@ main()
     process.exitCode = 1;
   })
   .finally(async () => {
-    await prisma.$disconnect();
+    await db.$disconnect();
   });
