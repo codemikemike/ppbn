@@ -6,6 +6,7 @@ import { Star } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { ImageWithFallback } from "@/components/shared/ImageWithFallback";
 import StaffStarRating from "@/components/staff/StaffStarRating";
+import TipButton from "@/components/staff/TipButton";
 import { staffService } from "@/services/staffService";
 import { NotFoundError } from "@/domain/errors/DomainErrors";
 import { authOptions } from "@/lib/auth";
@@ -160,6 +161,11 @@ export default async function StaffProfilePage({ params }: PageProps) {
             <section className="mt-6" aria-label="Rate this staff member">
               <h2 className="text-sm font-medium">Your rating</h2>
               <StaffStarRating staffId={id} initialRating={userRating} />
+            </section>
+
+            <section className="mt-6" aria-label="Tip this staff member">
+              <h2 className="text-sm font-medium">Tip</h2>
+              <TipButton staffId={id} />
             </section>
 
             {profile.bio ? (

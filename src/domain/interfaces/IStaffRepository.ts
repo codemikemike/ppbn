@@ -50,4 +50,18 @@ export type IStaffRepository = {
     staffProfileId: string,
     userId: string,
   ) => Promise<number | null>;
+
+  /**
+   * Creates a tip record for a staff profile.
+   * @param staffProfileId Staff profile id.
+   * @param userId User id.
+   * @param amount Tip amount in USD.
+   * @param message Optional message.
+   */
+  createTip: (
+    staffProfileId: string,
+    userId: string,
+    amount: number,
+    message?: string,
+  ) => Promise<string>;
 };

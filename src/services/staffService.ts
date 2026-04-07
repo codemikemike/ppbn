@@ -3,6 +3,7 @@ import type {
   StaffProfileDto,
 } from "@/domain/dtos/StaffProfileDto";
 import type { RateStaffResultDto } from "@/domain/dtos/RateStaffResultDto";
+import type { TipStaffResultDto } from "@/domain/dtos/TipStaffResultDto";
 import { NotFoundError } from "@/domain/errors/DomainErrors";
 import type { IStaffRepository } from "@/domain/interfaces/IStaffRepository";
 import { staffRepository } from "@/repositories/staffRepository";
@@ -45,6 +46,20 @@ export type StaffService = {
     staffProfileId: string,
     userId: string,
   ) => Promise<number | null>;
+
+  /**
+   * Records a tip for a staff profile.
+   * @param staffProfileId Staff profile id.
+   * @param userId User id.
+   * @param amount Tip amount in USD.
+   * @param message Optional message.
+   */
+  tipStaff: (
+    staffProfileId: string,
+    userId: string,
+    amount: number,
+    message?: string,
+  ) => Promise<TipStaffResultDto | null>;
 };
 
 const normalizeBarFilter = (bar?: string): string | undefined => {
@@ -80,6 +95,19 @@ export const createStaffService = (repo: IStaffRepository): StaffService => ({
 
   getUserRating: async (staffProfileId: string, userId: string) =>
     repo.getUserRating(staffProfileId, userId),
+
+  tipStaff: async (
+    staffProfileId: string,
+    userId: string,
+    amount: number,
+    message?: string,
+  ) => {
+    const profile = await repo.findApprovedById(staffProfileId);
+    if (!profile) return null;
+
+    const tipId = await repo.createTip(staffProfileId, userId, amount, message);
+    return { success: true, tipId };
+  },
 });
 
 /**
