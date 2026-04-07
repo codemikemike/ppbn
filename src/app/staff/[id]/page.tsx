@@ -1,12 +1,19 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { getServerSession } from "next-auth";
 import { Star } from "lucide-react";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { ImageWithFallback } from "@/components/shared/ImageWithFallback";
+import StaffStarRating from "@/components/staff/StaffStarRating";
 import { staffService } from "@/services/staffService";
 import { NotFoundError } from "@/domain/errors/DomainErrors";
+import { authOptions } from "@/lib/auth";
 
+/**
+ * ISR revalidation window for the staff profile detail page.
+ * @returns Revalidation window in seconds.
+ */
 export const revalidate = 3600;
 
 type PageProps = {
@@ -55,9 +62,15 @@ const StarRating = ({ rating }: { rating: number }) => {
 
 /**
  * Staff profile detail page.
+ *
+ * @param props - Next.js page props.
+ * @param props.params - Route params containing the staff profile id.
+ * @returns The staff profile detail UI.
  */
 export default async function StaffProfilePage({ params }: PageProps) {
   const { id } = await params;
+
+  const session = await getServerSession(authOptions);
 
   let profile;
   try {
@@ -66,6 +79,10 @@ export default async function StaffProfilePage({ params }: PageProps) {
     if (err instanceof NotFoundError) notFound();
     throw err;
   }
+
+  const userRating = session
+    ? await staffService.getUserRating(id, session.user.id)
+    : null;
 
   const initials = getInitials(profile.displayName);
   const gallery =
@@ -139,6 +156,11 @@ export default async function StaffProfilePage({ params }: PageProps) {
                 </div>
               </dl>
             </div>
+
+            <section className="mt-6" aria-label="Rate this staff member">
+              <h2 className="text-sm font-medium">Your rating</h2>
+              <StaffStarRating staffId={id} initialRating={userRating} />
+            </section>
 
             {profile.bio ? (
               <div className="mt-6">
