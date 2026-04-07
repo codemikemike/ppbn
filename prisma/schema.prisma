@@ -1,13 +1,337 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
+// PPBN — Phnom Penh By Night
+// Prisma Schema for MySQL
 
 generator client {
-  provider = "prisma-client"
+  provider = "prisma-client-js"
   output   = "../src/generated/prisma"
 }
 
 datasource db {
   provider = "mysql"
+}
+
+// ============================================================================
+// ENUMS
+// ============================================================================
+
+enum UserRole {
+  Visitor
+  RegisteredUser
+  BarOwner
+  BlogWriter
+  Staff
+  Admin
+}
+
+enum BarArea {
+  Riverside
+  BKK1
+  Street136
+  Street104
+}
+
+enum BarCategory {
+  CocktailBar
+  RooftopBar
+  Club
+  SportsBar
+  DiveBar
+  WineBar
+  Lounge
+}
+
+enum EventType {
+  DJNight
+  LadiesNight
+  LiveMusic
+  HappyHour
+  ThemeNight
+  SpecialEvent
+}
+
+// ============================================================================
+// USER & AUTH
+// ============================================================================
+
+model User {
+  id            String    @id @default(cuid())
+  email         String    @unique
+  name          String?
+  password      String
+  role          UserRole  @default(RegisteredUser)
+  emailVerified DateTime?
+  image         String?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+
+  bars         Bar[]
+  reviews      Review[]
+  blogPosts    BlogPost[]
+  staffProfile StaffProfile?
+  favoriteBars FavoriteBar[]
+  staffRatings StaffRating[]
+  staffTips    StaffTip[]
+  comments     Comment[]
+
+  @@index([email])
+  @@index([role])
+  @@map("users")
+}
+
+// ============================================================================
+// BAR
+// ============================================================================
+
+model Bar {
+  id            String      @id @default(cuid())
+  slug          String      @unique
+  name          String
+  description   String?     @db.Text
+  area          BarArea
+  category      BarCategory
+  address       String?
+  phone         String?
+  email         String?
+  website       String?
+  googleMapsUrl String?
+  openingHours  String?     @db.Text
+  priceRange    Int?        @default(2)
+  isFeatured    Boolean     @default(false)
+  isApproved    Boolean     @default(false)
+  latitude      Decimal?    @db.Decimal(10, 8)
+  longitude     Decimal?    @db.Decimal(11, 8)
+  ownerId       String
+  owner         User        @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  deletedAt     DateTime?
+
+  images      BarImage[]
+  reviews     Review[]
+  events      Event[]
+  favoritedBy FavoriteBar[]
+
+  @@index([slug])
+  @@index([area])
+  @@index([category])
+  @@index([isFeatured])
+  @@index([isApproved])
+  @@index([ownerId])
+  @@index([deletedAt])
+  @@map("bars")
+}
+
+model BarImage {
+  id           String   @id @default(cuid())
+  barId        String
+  bar          Bar      @relation(fields: [barId], references: [id], onDelete: Cascade)
+  url          String
+  publicId     String
+  altText      String?
+  isPrimary    Boolean  @default(false)
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([barId])
+  @@index([isPrimary])
+  @@map("bar_images")
+}
+
+// ============================================================================
+// REVIEW
+// ============================================================================
+
+model Review {
+  id         String    @id @default(cuid())
+  barId      String
+  bar        Bar       @relation(fields: [barId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rating     Int
+  title      String?
+  content    String    @db.Text
+  isApproved Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  deletedAt  DateTime?
+
+  comments Comment[]
+
+  @@unique([barId, userId])
+  @@index([barId])
+  @@index([userId])
+  @@index([rating])
+  @@index([isApproved])
+  @@index([deletedAt])
+  @@map("reviews")
+}
+
+model Comment {
+  id         String    @id @default(cuid())
+  content    String    @db.Text
+  reviewId   String
+  review     Review    @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  isApproved Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  deletedAt  DateTime?
+
+  @@index([reviewId])
+  @@index([userId])
+  @@index([isApproved])
+  @@index([deletedAt])
+  @@map("comments")
+}
+
+// ============================================================================
+// BLOG
+// ============================================================================
+
+model BlogPost {
+  id            String    @id @default(cuid())
+  slug          String    @unique
+  title         String
+  excerpt       String?   @db.Text
+  content       String    @db.LongText
+  coverImageUrl String?
+  coverImageAlt String?
+  authorId      String
+  author        User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  isPublished   Boolean   @default(false)
+  publishedAt   DateTime?
+  tags          String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  deletedAt     DateTime?
+
+  @@index([slug])
+  @@index([authorId])
+  @@index([isPublished])
+  @@index([publishedAt])
+  @@index([deletedAt])
+  @@map("blog_posts")
+}
+
+// ============================================================================
+// STAFF
+// ============================================================================
+
+model StaffProfile {
+  id              String    @id @default(cuid())
+  slug            String    @unique
+  userId          String    @unique
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  displayName     String
+  bio             String?   @db.Text
+  photoUrl        String?
+  photoAlt        String?
+  currentBar      String?
+  position        String?
+  yearsExperience Int?
+  specialties     String?   @db.Text
+  isActive        Boolean   @default(true)
+  isApproved      Boolean   @default(false)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  deletedAt       DateTime?
+
+  ratings StaffRating[]
+  tips    StaffTip[]
+
+  @@index([slug])
+  @@index([userId])
+  @@index([isActive])
+  @@index([isApproved])
+  @@index([deletedAt])
+  @@map("staff_profiles")
+}
+
+model StaffRating {
+  id             String       @id @default(cuid())
+  staffProfileId String
+  staffProfile   StaffProfile @relation(fields: [staffProfileId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rating         Int
+  comment        String?      @db.Text
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@unique([staffProfileId, userId])
+  @@index([staffProfileId])
+  @@index([userId])
+  @@index([rating])
+  @@map("staff_ratings")
+}
+
+model StaffTip {
+  id              String       @id @default(cuid())
+  staffProfileId  String
+  staffProfile    StaffProfile @relation(fields: [staffProfileId], references: [id], onDelete: Cascade)
+  userId          String
+  user            User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  amount          Decimal      @db.Decimal(10, 2)
+  currency        String       @default("USD")
+  message         String?      @db.Text
+  paymentProvider String?
+  paymentId       String?
+  createdAt       DateTime     @default(now())
+
+  @@index([staffProfileId])
+  @@index([userId])
+  @@index([createdAt])
+  @@map("staff_tips")
+}
+
+// ============================================================================
+// EVENT
+// ============================================================================
+
+model Event {
+  id          String    @id @default(cuid())
+  title       String
+  description String?   @db.Text
+  eventType   EventType
+  barId       String
+  bar         Bar       @relation(fields: [barId], references: [id], onDelete: Cascade)
+  startTime   DateTime
+  endTime     DateTime?
+  imageUrl    String?
+  imageAlt    String?
+  isFeatured  Boolean   @default(false)
+  isApproved  Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  deletedAt   DateTime?
+
+  @@index([barId])
+  @@index([startTime])
+  @@index([eventType])
+  @@index([isFeatured])
+  @@index([isApproved])
+  @@index([deletedAt])
+  @@map("events")
+}
+
+// ============================================================================
+// FAVORITES
+// ============================================================================
+
+model FavoriteBar {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  barId     String
+  bar       Bar      @relation(fields: [barId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, barId])
+  @@index([userId])
+  @@index([barId])
+  @@map("favorite_bars")
 }
