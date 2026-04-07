@@ -25,6 +25,8 @@ export const Navbar = () => {
   const { data: session, status } = useSession();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
+  if (status === "loading") return null;
+
   const username = session?.user?.name ?? session?.user?.email;
 
   const handleLogout = async (): Promise<void> => {
