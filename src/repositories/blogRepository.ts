@@ -1,5 +1,6 @@
 import { db } from "@/lib/db";
 import type { BlogPostDto } from "@/domain/dtos/BlogPostDto";
+import type { CommentDto } from "@/domain/dtos/CommentDto";
 import type {
   IBlogRepository,
   PublishedBlogPostFilters,
@@ -42,6 +43,20 @@ const toBlogPostDto = (
     category,
     tags,
     imageUrl: post.coverImageUrl ?? null,
+  };
+};
+
+const toCommentDto = (comment: {
+  id: string;
+  content: string;
+  createdAt: Date;
+  user: { name: string | null };
+}): CommentDto => {
+  return {
+    id: comment.id,
+    content: comment.content,
+    authorName: comment.user.name,
+    createdAt: comment.createdAt,
   };
 };
 
@@ -107,5 +122,84 @@ export const blogRepository: IBlogRepository = {
     if (!post) return null;
 
     return toBlogPostDto(post);
+  },
+
+  /**
+   * Lists approved comments for a published blog post.
+   * @param slug Post slug.
+   */
+  async findCommentsBySlug(slug: string): Promise<CommentDto[]> {
+    const comments = await db.blogComment.findMany({
+      where: {
+        blogPost: {
+          slug,
+          isPublished: true,
+          publishedAt: {
+            not: null,
+          },
+          deletedAt: null,
+        },
+        isApproved: true,
+        deletedAt: null,
+      },
+      include: {
+        user: {
+          select: {
+            name: true,
+          },
+        },
+      },
+      orderBy: [{ createdAt: "desc" }],
+    });
+
+    return comments.map((comment) => toCommentDto(comment));
+  },
+
+  /**
+   * Creates a blog comment for a published blog post.
+   * @param slug Post slug.
+   * @param userId User id.
+   * @param content Comment content.
+   */
+  async createComment(
+    slug: string,
+    userId: string,
+    content: string,
+  ): Promise<CommentDto> {
+    const post = await db.blogPost.findFirst({
+      where: {
+        slug,
+        isPublished: true,
+        publishedAt: {
+          not: null,
+        },
+        deletedAt: null,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (!post) {
+      throw new Error("Invariant violation: blog post not found for slug");
+    }
+
+    const comment = await db.blogComment.create({
+      data: {
+        blogPostId: post.id,
+        userId,
+        content,
+        isApproved: false,
+      },
+      include: {
+        user: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
+
+    return toCommentDto(comment);
   },
 };
