@@ -1,94 +1,5 @@
 import { db } from "@/lib/db";
 import type { EventDto } from "@/domain/dtos/EventDto";
-import type { IEventRepository } from "@/domain/interfaces/IEventRepository";
-import type { Event } from "@/generated/prisma";
-
-const toEventDto = (
-  event: Event & {
-    bar: {
-      id: string;
-      name: string;
-      slug: string;
-    };
-  },
-): EventDto => {
-  return {
-    id: event.id,
-    title: event.title,
-    description: event.description ?? null,
-    eventType: event.eventType,
-    startTime: event.startTime,
-    endTime: event.endTime ?? null,
-    barId: event.bar.id,
-    barName: event.bar.name,
-    barSlug: event.bar.slug,
-    imageUrl: event.imageUrl ?? null,
-    imageAlt: event.imageAlt ?? null,
-  };
-};
-
-/**
- * Event repository implementation backed by Prisma.
- */
-export const eventRepository: IEventRepository = {
-  /**
-   * Lists publicly visible events that overlap the given time range.
-   * @param start Inclusive start.
-   * @param end Exclusive end.
-   */
-  async findVisibleOverlappingRange(
-    start: Date,
-    end: Date,
-  ): Promise<EventDto[]> {
-    const events = await db.event.findMany({
-      where: {
-        isApproved: true,
-        deletedAt: null,
-        bar: {
-          isApproved: true,
-          deletedAt: null,
-        },
-        AND: [
-          {
-            startTime: {
-              lt: end,
-            },
-          },
-          {
-            OR: [
-              {
-                endTime: null,
-                startTime: {
-                  gte: start,
-                },
-              },
-              {
-                endTime: {
-                  not: null,
-                  gte: start,
-                },
-              },
-            ],
-          },
-        ],
-      },
-      include: {
-        bar: {
-          select: {
-            id: true,
-            name: true,
-            slug: true,
-          },
-        },
-      },
-      orderBy: [{ startTime: "asc" }],
-    });
-
-    return events.map((event) => toEventDto(event));
-  },
-};
-import { db } from "@/lib/db";
-import type { EventDto } from "@/domain/dtos/EventDto";
 import type {
   IEventRepository,
   UpcomingEventFilters,
@@ -135,6 +46,10 @@ const buildUpcomingWhere = (now: Date, filters: UpcomingEventFilters) => {
   return {
     isApproved: true,
     deletedAt: null,
+    bar: {
+      isApproved: true,
+      deletedAt: null,
+    },
     ...(normalized.type ? { eventType: normalized.type } : {}),
     ...(normalized.barId ? { barId: normalized.barId } : {}),
     OR: [
@@ -154,7 +69,7 @@ const buildUpcomingWhere = (now: Date, filters: UpcomingEventFilters) => {
 };
 
 /**
- * Event repository backed by Prisma.
+ * Event repository implementation backed by Prisma.
  */
 export const eventRepository: IEventRepository = {
   /**
@@ -205,7 +120,52 @@ export const eventRepository: IEventRepository = {
     });
 
     if (!event) return null;
-
     return toEventDto(event);
+  },
+
+  /**
+   * Lists publicly visible events that overlap the given time range.
+   * @param start Inclusive start.
+   * @param end Exclusive end.
+   */
+  async findVisibleOverlappingRange(
+    start: Date,
+    end: Date,
+  ): Promise<EventDto[]> {
+    const events = await db.event.findMany({
+      where: {
+        isApproved: true,
+        deletedAt: null,
+        bar: {
+          isApproved: true,
+          deletedAt: null,
+        },
+        startTime: {
+          lt: end,
+        },
+        OR: [
+          {
+            endTime: null,
+          },
+          {
+            endTime: {
+              gte: start,
+            },
+          },
+        ],
+      },
+      include: {
+        bar: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+          },
+        },
+      },
+      orderBy: [{ startTime: "asc" }],
+    });
+
+    return events.map((event) => toEventDto(event));
   },
 };
