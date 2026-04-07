@@ -4,9 +4,15 @@ import { notFound } from "next/navigation";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ImageWithFallback } from "@/components/shared/ImageWithFallback";
+import CommentForm from "@/components/blog/CommentForm";
+import CommentList from "@/components/blog/CommentList";
 import { blogService } from "@/services/blogService";
 import { NotFoundError } from "@/domain/errors/DomainErrors";
 
+/**
+ * ISR revalidation window for the blog post detail page.
+ * @returns Revalidation window in seconds.
+ */
 export const revalidate = 3600;
 
 type PageProps = {
@@ -54,6 +60,10 @@ export async function generateMetadata({
 
 /**
  * Blog post detail page.
+ *
+ * @param props - Next.js page props.
+ * @param props.params - Route params containing the post slug.
+ * @returns The blog post detail UI.
  */
 export default async function BlogPostDetailPage({ params }: PageProps) {
   const { slug } = await params;
@@ -73,6 +83,8 @@ export default async function BlogPostDetailPage({ params }: PageProps) {
         .filter((candidate) => candidate.category === post.category)
         .slice(0, 3)
     : [];
+
+  const comments = await blogService.getComments(slug);
 
   return (
     <main className="mx-auto w-full max-w-5xl px-4 py-10">
@@ -158,6 +170,18 @@ export default async function BlogPostDetailPage({ params }: PageProps) {
               </div>
             </CardContent>
           </Card>
+
+          <section aria-label="Comments">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-base">Comments</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CommentList comments={comments} />
+                <CommentForm slug={slug} />
+              </CardContent>
+            </Card>
+          </section>
         </article>
 
         <aside className="space-y-4" aria-label="Related posts">

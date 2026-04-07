@@ -1,4 +1,5 @@
 import type { BlogPostDto } from "@/domain/dtos/BlogPostDto";
+import type { CommentDto } from "@/domain/dtos/CommentDto";
 import type {
   IBlogRepository,
   PublishedBlogPostFilters,
@@ -6,6 +7,9 @@ import type {
 import { blogRepository } from "@/repositories/blogRepository";
 import { NotFoundError } from "@/domain/errors/DomainErrors";
 
+/**
+ * Blog service contract.
+ */
 export type BlogService = {
   /**
    * Lists published blog posts.
@@ -20,6 +24,24 @@ export type BlogService = {
    * @throws NotFoundError when the post does not exist or is not published.
    */
   getPublishedPostBySlug: (slug: string) => Promise<BlogPostDto>;
+
+  /**
+   * Lists approved comments for a published blog post.
+   * @param slug Post slug.
+   */
+  getComments: (slug: string) => Promise<CommentDto[]>;
+
+  /**
+   * Adds a comment to a published blog post.
+   * @param slug Post slug.
+   * @param userId User id.
+   * @param content Comment content.
+   */
+  addComment: (
+    slug: string,
+    userId: string,
+    content: string,
+  ) => Promise<CommentDto | null>;
 };
 
 const DEFAULT_PAGE = 1;
@@ -49,6 +71,7 @@ const normalizePublishedPostFilters = (
 /**
  * Creates a blog service using the given repository.
  * @param repo Repository implementation.
+ * @returns Blog service implementation.
  */
 export const createBlogService = (repo: IBlogRepository): BlogService => ({
   listPublishedPosts: async (page?: number, limit?: number) => {
@@ -61,6 +84,22 @@ export const createBlogService = (repo: IBlogRepository): BlogService => ({
       throw new NotFoundError("Blog post not found");
     }
     return post;
+  },
+
+  getComments: async (slug: string) => {
+    const post = await repo.findBySlug(slug);
+    if (!post) {
+      throw new NotFoundError("Blog post not found");
+    }
+
+    return repo.findCommentsBySlug(slug);
+  },
+
+  addComment: async (slug: string, userId: string, content: string) => {
+    const post = await repo.findBySlug(slug);
+    if (!post) return null;
+
+    return repo.createComment(slug, userId, content);
   },
 });
 
