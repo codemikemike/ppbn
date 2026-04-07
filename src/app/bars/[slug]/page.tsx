@@ -2,7 +2,7 @@ import { notFound } from "next/navigation";
 import { getServerSession } from "next-auth";
 import { Star } from "lucide-react";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { barService } from "@/services/barService";
 import { ImageWithFallback } from "@/components/shared/ImageWithFallback";
 import StarRating from "@/components/bars/StarRating";
@@ -44,7 +44,7 @@ const StaticStarRating = ({ rating }: { rating: number }) => {
             key={index}
             className={
               filled
-                ? "h-4 w-4 fill-foreground text-foreground"
+                ? "h-4 w-4 fill-[var(--accent-gold)] text-[var(--accent-gold)]"
                 : "h-4 w-4 text-muted-foreground"
             }
           />
@@ -81,142 +81,249 @@ export default async function BarDetailPage({ params }: PageProps) {
     (review) => review.content.trim().length > 0,
   );
 
-  return (
-    <main className="mx-auto w-full max-w-3xl px-4 py-10">
-      <div className="space-y-6">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="relative aspect-video w-full overflow-hidden rounded-md">
-              <ImageWithFallback
-                src={bar.primaryImageUrl}
-                alt={`${bar.name} photo`}
-                placeholderType="bar"
-                fill
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, 768px"
-                priority
-              />
-            </div>
-          </CardContent>
-        </Card>
+  const getAvatarInitials = (value: string | null): string => {
+    const normalized = (value ?? "").trim();
+    if (!normalized) return "?";
 
-        <Card>
-          <CardHeader>
-            <CardTitle>
-              <div className="flex items-center justify-between gap-2">
-                <span>{bar.name}</span>
+    const parts = normalized.split(/\s+/).filter(Boolean);
+    const first = parts[0]?.[0] ?? "?";
+    const last = parts.length > 1 ? parts[parts.length - 1]?.[0] : "";
+    return `${first}${last}`.toUpperCase();
+  };
+
+  return (
+    <main className="ppbn-page">
+      <section aria-label="Bar hero" className="relative">
+        <div className="relative h-[320px] w-full overflow-hidden">
+          <ImageWithFallback
+            src={bar.primaryImageUrl}
+            alt={`${bar.name} photo`}
+            placeholderType="bar"
+            fill
+            className="object-cover"
+            sizes="100vw"
+            priority
+          />
+          <div className="ppbn-hero-overlay" aria-hidden="true" />
+        </div>
+
+        <div className="mx-auto w-full max-w-6xl px-4">
+          <div className="-mt-10 rounded-2xl border border-border/70 bg-card/90 p-5 shadow-[var(--glow-red)] backdrop-blur-md">
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h1 className="truncate text-2xl font-semibold">
+                    {bar.name}
+                  </h1>
+                  {bar.averageRating !== null ? (
+                    <span className="text-xs text-muted-foreground">
+                      {bar.averageRating.toFixed(1)}
+                    </span>
+                  ) : null}
+                </div>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {bar.area} · {bar.category}
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
                 <FavoriteButton
                   barSlug={bar.slug}
                   initialIsFavorited={isFavorited}
                 />
               </div>
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <dl className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
-              <div>
-                <dt className="text-muted-foreground">Area</dt>
-                <dd>{bar.area}</dd>
-              </div>
-              <div>
-                <dt className="text-muted-foreground">Category</dt>
-                <dd>{bar.category}</dd>
-              </div>
-              <div>
-                <dt className="text-muted-foreground">Opening hours</dt>
-                <dd>{bar.openingHours ?? "—"}</dd>
-              </div>
-              <div>
-                <dt className="text-muted-foreground">Average rating</dt>
-                <dd className="flex items-center gap-2">
-                  <span>{formatAverageRating(bar.averageRating)}</span>
-                  {bar.averageRating !== null ? (
-                    <StaticStarRating rating={bar.averageRating} />
-                  ) : null}
-                </dd>
-              </div>
-            </dl>
+            </div>
 
-            <section className="mt-6" aria-label="Rate this bar">
-              <h2 className="text-sm font-medium">Your rating</h2>
-              {session ? (
-                <StarRating
-                  barSlug={bar.slug}
-                  initialRating={currentUserRating}
-                />
-              ) : (
-                <p className="mt-2 text-sm text-muted-foreground">
-                  Login to rate this bar
-                </p>
-              )}
-            </section>
-
-            {bar.description ? (
-              <div className="mt-6">
-                <h2 className="text-sm font-medium">Description</h2>
-                <p className="mt-2 whitespace-pre-line text-sm text-muted-foreground">
-                  {bar.description}
-                </p>
-              </div>
-            ) : null}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Reviews</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <p className="text-sm text-muted-foreground">
-                Total reviews:{" "}
-                <span className="font-medium">{visibleReviews.length}</span>
-              </p>
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
               <div className="flex items-center gap-2">
                 <span className="text-sm text-muted-foreground">Average</span>
                 <span className="text-sm font-medium">
-                  {bar.averageRating === null
-                    ? "—"
-                    : bar.averageRating.toFixed(1)}
+                  {formatAverageRating(bar.averageRating)}
                 </span>
                 {bar.averageRating !== null ? (
                   <StaticStarRating rating={bar.averageRating} />
                 ) : null}
               </div>
-            </div>
-
-            {visibleReviews.length === 0 ? (
-              <p className="text-sm text-muted-foreground">No reviews yet.</p>
-            ) : (
-              <div className="mt-4 space-y-4">
-                {visibleReviews.map((review) => (
-                  <article key={review.id} className="rounded-md border p-4">
-                    <header className="flex items-start justify-between gap-4">
-                      <div className="space-y-1">
-                        <p className="text-sm font-medium">
-                          {review.user.name ?? "Anonymous"}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {formatReviewDate(review.createdAt)}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium">
-                          {review.rating}/5
-                        </span>
-                        <StaticStarRating rating={review.rating} />
-                      </div>
-                    </header>
-
-                    <p className="mt-3 whitespace-pre-line text-sm text-muted-foreground">
-                      {review.content}
-                    </p>
-                  </article>
-                ))}
+              <div className="text-sm text-muted-foreground">
+                {bar.openingHours ? `Hours: ${bar.openingHours}` : "Hours: —"}
               </div>
-            )}
+            </div>
+          </div>
+        </div>
+      </section>
 
-            <ReviewForm barSlug={bar.slug} />
+      <div className="mx-auto w-full max-w-6xl space-y-6 px-4 py-10">
+        <Card className="ppbn-card">
+          <CardContent className="pt-6">
+            <div className="ppbn-tabs" aria-label="Bar tabs">
+              <input
+                id="ppbn-tab-info"
+                name="ppbn-tab"
+                type="radio"
+                defaultChecked
+              />
+              <label className="ppbn-tab" htmlFor="ppbn-tab-info">
+                Info
+              </label>
+
+              <input id="ppbn-tab-reviews" name="ppbn-tab" type="radio" />
+              <label className="ppbn-tab" htmlFor="ppbn-tab-reviews">
+                Reviews
+              </label>
+
+              <input id="ppbn-tab-gallery" name="ppbn-tab" type="radio" />
+              <label className="ppbn-tab" htmlFor="ppbn-tab-gallery">
+                Gallery
+              </label>
+
+              <div className="ppbn-tab-panels">
+                <section className="ppbn-tab-panel" data-panel="info">
+                  <dl className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
+                    <div>
+                      <dt className="text-muted-foreground">Area</dt>
+                      <dd>{bar.area}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-muted-foreground">Category</dt>
+                      <dd>{bar.category}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-muted-foreground">Opening hours</dt>
+                      <dd>{bar.openingHours ?? "—"}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-muted-foreground">Average rating</dt>
+                      <dd className="flex items-center gap-2">
+                        <span>{formatAverageRating(bar.averageRating)}</span>
+                        {bar.averageRating !== null ? (
+                          <StaticStarRating rating={bar.averageRating} />
+                        ) : null}
+                      </dd>
+                    </div>
+                  </dl>
+
+                  <section className="mt-6" aria-label="Rate this bar">
+                    <h2 className="text-sm font-medium">Your rating</h2>
+                    {session ? (
+                      <StarRating
+                        barSlug={bar.slug}
+                        initialRating={currentUserRating}
+                      />
+                    ) : (
+                      <p className="mt-2 text-sm text-muted-foreground">
+                        Login to rate this bar
+                      </p>
+                    )}
+                  </section>
+
+                  {bar.description ? (
+                    <div className="mt-6">
+                      <h2 className="text-sm font-medium">Description</h2>
+                      <p className="mt-2 whitespace-pre-line text-sm text-muted-foreground">
+                        {bar.description}
+                      </p>
+                    </div>
+                  ) : null}
+                </section>
+
+                <section className="ppbn-tab-panel" data-panel="reviews">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <p className="text-sm text-muted-foreground">
+                      Total reviews:{" "}
+                      <span className="font-medium">
+                        {visibleReviews.length}
+                      </span>
+                    </p>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm text-muted-foreground">
+                        Average
+                      </span>
+                      <span className="text-sm font-medium">
+                        {bar.averageRating === null
+                          ? "—"
+                          : bar.averageRating.toFixed(1)}
+                      </span>
+                      {bar.averageRating !== null ? (
+                        <StaticStarRating rating={bar.averageRating} />
+                      ) : null}
+                    </div>
+                  </div>
+
+                  {visibleReviews.length === 0 ? (
+                    <p className="mt-4 text-sm text-muted-foreground">
+                      No reviews yet.
+                    </p>
+                  ) : (
+                    <div className="mt-4 space-y-4">
+                      {visibleReviews.map((review) => (
+                        <article
+                          key={review.id}
+                          className="rounded-xl border border-border/70 bg-background/30 p-4"
+                        >
+                          <header className="flex items-start justify-between gap-4">
+                            <div className="flex items-start gap-3">
+                              <div className="ppbn-avatar" aria-hidden="true">
+                                <span className="text-xs font-semibold">
+                                  {getAvatarInitials(review.user.name)}
+                                </span>
+                              </div>
+                              <div className="space-y-1">
+                                <p className="text-sm font-medium">
+                                  {review.user.name ?? "Anonymous"}
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                  {formatReviewDate(review.createdAt)}
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm font-medium">
+                                {review.rating}/5
+                              </span>
+                              <StaticStarRating rating={review.rating} />
+                            </div>
+                          </header>
+
+                          <p className="mt-3 whitespace-pre-line text-sm text-muted-foreground">
+                            {review.content}
+                          </p>
+                        </article>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="mt-6">
+                    <ReviewForm barSlug={bar.slug} />
+                  </div>
+                </section>
+
+                <section className="ppbn-tab-panel" data-panel="gallery">
+                  {bar.images.length === 0 ? (
+                    <p className="text-sm text-muted-foreground">
+                      No photos yet.
+                    </p>
+                  ) : (
+                    <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                      {bar.images.map((image) => (
+                        <li key={image.id}>
+                          <div className="relative aspect-video overflow-hidden rounded-xl border border-border/70">
+                            <ImageWithFallback
+                              src={image.url}
+                              alt={image.altText ?? `${bar.name} photo`}
+                              placeholderType="bar"
+                              fill
+                              className="object-cover"
+                              sizes="(max-width: 768px) 100vw, 33vw"
+                            />
+                          </div>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </section>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>

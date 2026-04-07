@@ -13,6 +13,13 @@ export type BarDto = {
   isFeatured: boolean;
 
   /**
+   * Average rating across approved, non-deleted reviews.
+   *
+   * When there are no ratings, this is null.
+   */
+  averageRating: number | null;
+
+  /**
    * Optional bar latitude.
    */
   latitude?: number;

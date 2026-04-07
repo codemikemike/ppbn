@@ -13,16 +13,53 @@ import type {
 } from "@/domain/interfaces/IBarRepository";
 import type { Bar } from "@/generated/prisma";
 
-const toBarDto = (bar: Bar): BarDto => ({
+const toBarDto = (bar: Bar, averageRating: number | null): BarDto => ({
   id: bar.id,
   slug: bar.slug,
   name: bar.name,
   area: bar.area as unknown as BarArea,
   category: bar.category as unknown as BarCategory,
   isFeatured: bar.isFeatured,
+  averageRating,
   ...(bar.latitude !== null ? { latitude: bar.latitude } : {}),
   ...(bar.longitude !== null ? { longitude: bar.longitude } : {}),
 });
+
+const getAverageRatingsByBarId = async (
+  barIds: string[],
+): Promise<Map<string, number | null>> => {
+  const uniqueIds = Array.from(
+    new Set(barIds.map((id) => id.trim()).filter(Boolean)),
+  );
+  const result = new Map<string, number | null>();
+  if (uniqueIds.length === 0) return result;
+
+  const aggregates = await db.review.groupBy({
+    by: ["barId"],
+    where: {
+      barId: {
+        in: uniqueIds,
+      },
+      isApproved: true,
+      deletedAt: null,
+    },
+    _avg: {
+      rating: true,
+    },
+    _count: {
+      _all: true,
+    },
+  });
+
+  for (const row of aggregates) {
+    result.set(
+      row.barId,
+      row._count._all === 0 ? null : (row._avg.rating ?? null),
+    );
+  }
+
+  return result;
+};
 
 const toBarImageSummaryDto = (image: {
   id: string;
@@ -152,7 +189,10 @@ export const barRepository: IBarRepository = {
       orderBy: [{ isFeatured: "desc" }, { name: "asc" }],
     });
 
-    return bars.map(toBarDto);
+    const averageRatings = await getAverageRatingsByBarId(
+      bars.map((bar) => bar.id),
+    );
+    return bars.map((bar) => toBarDto(bar, averageRatings.get(bar.id) ?? null));
   },
 
   async findBySlug(slug: string): Promise<BarDetailDto | null> {
@@ -340,7 +380,10 @@ export const barRepository: IBarRepository = {
       orderBy: [{ name: "asc" }],
     });
 
-    return bars.map(toBarDto);
+    const averageRatings = await getAverageRatingsByBarId(
+      bars.map((bar) => bar.id),
+    );
+    return bars.map((bar) => toBarDto(bar, averageRatings.get(bar.id) ?? null));
   },
 
   /**
@@ -364,7 +407,10 @@ export const barRepository: IBarRepository = {
       orderBy: [{ name: "asc" }],
     });
 
-    return bars.map(toBarDto);
+    const averageRatings = await getAverageRatingsByBarId(
+      bars.map((bar) => bar.id),
+    );
+    return bars.map((bar) => toBarDto(bar, averageRatings.get(bar.id) ?? null));
   },
 
   /**
@@ -399,7 +445,12 @@ export const barRepository: IBarRepository = {
       return isOpenAt(bar.openingHours, dateTime);
     });
 
-    return openBars.map((bar) => toBarDto(bar as unknown as Bar));
+    const averageRatings = await getAverageRatingsByBarId(
+      openBars.map((bar) => bar.id),
+    );
+    return openBars.map((bar) =>
+      toBarDto(bar as unknown as Bar, averageRatings.get(bar.id) ?? null),
+    );
   },
 
   /**
@@ -465,6 +516,10 @@ export const barRepository: IBarRepository = {
       orderBy: [{ createdAt: "desc" }],
     });
 
-    return favorites.map((favorite) => toBarDto(favorite.bar));
+    const bars = favorites.map((favorite) => favorite.bar);
+    const averageRatings = await getAverageRatingsByBarId(
+      bars.map((bar) => bar.id),
+    );
+    return bars.map((bar) => toBarDto(bar, averageRatings.get(bar.id) ?? null));
   },
 };

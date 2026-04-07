@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { signOut, useSession } from "next-auth/react";
-import { Menu, X } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
@@ -24,6 +24,7 @@ const NAV_LINKS = [
 export const Navbar = () => {
   const { data: session, status } = useSession();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const pathname = usePathname();
 
   if (status === "loading") return null;
 
@@ -36,98 +37,125 @@ export const Navbar = () => {
   const closeMobileMenu = () => setIsMobileMenuOpen(false);
 
   return (
-    <header className="border-b">
+    <header className="sticky top-0 z-50 border-b border-border/60 ppbn-glass">
       <nav
-        className="mx-auto flex w-full max-w-5xl items-center justify-between gap-4 px-4 py-3"
+        className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-4 py-3"
         aria-label="Main"
       >
-        <Link href="/" className="text-sm font-semibold">
-          Phnom Penh By Night
+        <Link href="/" className="ppbn-logo" aria-label="Phnom Penh By Night">
+          PHNOM PENH BY NIGHT
         </Link>
 
-        <div className="hidden items-center gap-2 md:flex">
-          {NAV_LINKS.map((link) => (
-            <Button key={link.href} variant="ghost" asChild>
-              <Link href={link.href}>{link.label}</Link>
-            </Button>
-          ))}
+        <div className="hidden items-center gap-1 md:flex" aria-label="Primary">
+          {NAV_LINKS.map((link) => {
+            const isActive = pathname === link.href;
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={
+                  isActive ? "ppbn-navlink ppbn-navlink-active" : "ppbn-navlink"
+                }
+              >
+                {link.label}
+              </Link>
+            );
+          })}
         </div>
 
-        <div className="hidden items-center gap-2 md:flex">
+        <div className="hidden items-center gap-2 md:flex" aria-label="Account">
           {status === "authenticated" ? (
             <>
               <span className="text-sm text-muted-foreground">{username}</span>
-              <Button variant="outline" onClick={handleLogout}>
+              <Button
+                className="ppbn-button"
+                variant="outline"
+                onClick={handleLogout}
+              >
                 Logout
               </Button>
             </>
           ) : (
-            <Button variant="outline" asChild>
+            <Button className="ppbn-button" variant="outline" asChild>
               <Link href="/login">Login</Link>
             </Button>
           )}
         </div>
 
         <div className="md:hidden">
-          <Button
-            variant="ghost"
-            size="icon"
+          <button
+            type="button"
+            className="ppbn-hamburger"
             aria-label={isMobileMenuOpen ? "Close menu" : "Open menu"}
             aria-expanded={isMobileMenuOpen}
             onClick={() => setIsMobileMenuOpen((open) => !open)}
+            data-open={isMobileMenuOpen ? "true" : "false"}
           >
-            {isMobileMenuOpen ? <X /> : <Menu />}
-          </Button>
+            <span className="ppbn-hamburger-line" />
+            <span className="ppbn-hamburger-line" />
+            <span className="ppbn-hamburger-line" />
+          </button>
         </div>
       </nav>
 
-      {isMobileMenuOpen ? (
-        <div className="border-t md:hidden">
-          <div className="mx-auto w-full max-w-5xl px-4 py-3">
-            <div className="flex flex-col gap-2">
-              {NAV_LINKS.map((link) => (
-                <Button
+      <div
+        className={
+          isMobileMenuOpen
+            ? "ppbn-mobilemenu ppbn-mobilemenu-open md:hidden"
+            : "ppbn-mobilemenu md:hidden"
+        }
+      >
+        <div className="mx-auto w-full max-w-6xl px-4 pb-4">
+          <div className="flex flex-col gap-2">
+            {NAV_LINKS.map((link) => {
+              const isActive = pathname === link.href;
+              return (
+                <Link
                   key={link.href}
-                  variant="ghost"
-                  asChild
-                  className="justify-start"
+                  href={link.href}
+                  className={
+                    isActive
+                      ? "ppbn-navlink ppbn-navlink-active"
+                      : "ppbn-navlink"
+                  }
                   onClick={closeMobileMenu}
                 >
-                  <Link href={link.href}>{link.label}</Link>
-                </Button>
-              ))}
+                  {link.label}
+                </Link>
+              );
+            })}
 
-              <div className="mt-2 border-t pt-3">
-                {status === "authenticated" ? (
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="text-sm text-muted-foreground">
-                      {username}
-                    </span>
-                    <Button
-                      variant="outline"
-                      onClick={async () => {
-                        closeMobileMenu();
-                        await handleLogout();
-                      }}
-                    >
-                      Logout
-                    </Button>
-                  </div>
-                ) : (
+            <div className="mt-2 border-t border-border/60 pt-3">
+              {status === "authenticated" ? (
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-sm text-muted-foreground">
+                    {username}
+                  </span>
                   <Button
+                    className="ppbn-button"
                     variant="outline"
-                    asChild
-                    onClick={closeMobileMenu}
-                    className="justify-start"
+                    onClick={async () => {
+                      closeMobileMenu();
+                      await handleLogout();
+                    }}
                   >
-                    <Link href="/login">Login</Link>
+                    Logout
                   </Button>
-                )}
-              </div>
+                </div>
+              ) : (
+                <Button
+                  className="ppbn-button"
+                  variant="outline"
+                  asChild
+                  onClick={closeMobileMenu}
+                >
+                  <Link href="/login">Login</Link>
+                </Button>
+              )}
             </div>
           </div>
         </div>
-      ) : null}
+      </div>
     </header>
   );
 };
