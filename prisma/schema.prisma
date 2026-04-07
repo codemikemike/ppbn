@@ -31,13 +31,18 @@ enum BarArea {
 }
 
 enum BarCategory {
-  CocktailBar
-  RooftopBar
+  HostessBar
+  Pub
   Club
+  RooftopBar
+  CocktailBar
   SportsBar
+  KaraokeBar
   DiveBar
   WineBar
   Lounge
+  GayBar
+  LiveMusic
 }
 
 enum EventType {
