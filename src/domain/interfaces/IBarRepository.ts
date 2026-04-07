@@ -3,6 +3,7 @@ import type { BarDetailDto } from "../dtos/BarDetailDto";
 import type { BarArea } from "../dtos/BarArea";
 import type { BarCategory } from "../dtos/BarCategory";
 import type { RateBarResultDto } from "../dtos/RateBarResultDto";
+import type { ToggleFavoriteResultDto } from "../dtos/ToggleFavoriteResultDto";
 import type { UpsertReviewResultDto } from "../dtos/UpsertReviewResultDto";
 
 /**
@@ -78,4 +79,22 @@ export interface IBarRepository {
     rating: number,
     comment: string,
   ): Promise<UpsertReviewResultDto>;
+
+  /**
+   * Toggles whether a bar is favorited for the user.
+   *
+   * @param barId Bar id.
+   * @param userId User id.
+   */
+  toggleFavorite(
+    barId: string,
+    userId: string,
+  ): Promise<ToggleFavoriteResultDto>;
+
+  /**
+   * Lists the user's favorite bars.
+   *
+   * @param userId User id.
+   */
+  findUserFavorites(userId: string): Promise<BarDto[]>;
 }

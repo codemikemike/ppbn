@@ -401,4 +401,70 @@ export const barRepository: IBarRepository = {
 
     return openBars.map((bar) => toBarDto(bar as unknown as Bar));
   },
+
+  /**
+   * Toggles whether a bar is favorited for the user.
+   * @param barId Bar id.
+   * @param userId User id.
+   */
+  async toggleFavorite(barId: string, userId: string) {
+    const existing = await db.favoriteBar.findUnique({
+      where: {
+        userId_barId: {
+          userId,
+          barId,
+        },
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    if (existing) {
+      await db.favoriteBar.delete({
+        where: {
+          userId_barId: {
+            userId,
+            barId,
+          },
+        },
+      });
+
+      return { isFavorited: false };
+    }
+
+    await db.favoriteBar.create({
+      data: {
+        userId,
+        barId,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    return { isFavorited: true };
+  },
+
+  /**
+   * Lists the user's favorite bars.
+   * @param userId User id.
+   */
+  async findUserFavorites(userId: string): Promise<BarDto[]> {
+    const favorites = await db.favoriteBar.findMany({
+      where: {
+        userId,
+        bar: {
+          isApproved: true,
+          deletedAt: null,
+        },
+      },
+      include: {
+        bar: true,
+      },
+      orderBy: [{ createdAt: "desc" }],
+    });
+
+    return favorites.map((favorite) => toBarDto(favorite.bar));
+  },
 };

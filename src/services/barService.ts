@@ -1,6 +1,7 @@
 import type { BarDto } from "@/domain/dtos/BarDto";
 import type { BarDetailDto } from "@/domain/dtos/BarDetailDto";
 import type { RateBarResultDto } from "@/domain/dtos/RateBarResultDto";
+import type { ToggleFavoriteResultDto } from "@/domain/dtos/ToggleFavoriteResultDto";
 import type { UpsertReviewResultDto } from "@/domain/dtos/UpsertReviewResultDto";
 import type { ReviewDto } from "@/domain/dtos/ReviewDto";
 import type {
@@ -27,6 +28,13 @@ export type BarService = {
     userId: string,
     input: { rating: number; comment: string },
   ) => Promise<UpsertReviewResultDto | null>;
+
+  toggleFavorite: (
+    slug: string,
+    userId: string,
+  ) => Promise<ToggleFavoriteResultDto | null>;
+
+  getUserFavorites: (userId: string) => Promise<BarDto[]>;
 };
 
 /**
@@ -81,6 +89,15 @@ export const createBarService = (repo: IBarRepository): BarService => ({
 
     return repo.upsertReview(bar.id, userId, input.rating, input.comment);
   },
+
+  toggleFavorite: async (slug: string, userId: string) => {
+    const bar = await repo.findBySlug(slug);
+    if (!bar) return null;
+
+    return repo.toggleFavorite(bar.id, userId);
+  },
+
+  getUserFavorites: async (userId: string) => repo.findUserFavorites(userId),
 });
 
 /**
