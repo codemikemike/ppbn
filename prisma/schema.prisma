@@ -49,6 +49,18 @@ enum EventType {
   SpecialEvent
 }
 
+enum AuditAction {
+  Created
+  Updated
+  SoftDeleted
+  Restored
+  Approved
+  Rejected
+  Login
+  Register
+  Logout
+}
+
 // ============================================================================
 // USER & AUTH
 // ============================================================================
@@ -65,7 +77,10 @@ model User {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   deletedAt DateTime?
+  createdBy String?
+  updatedBy String?
 
+  // Relations
   bars         Bar[]
   reviews      Review[]
   blogPosts    BlogPost[]
@@ -74,6 +89,7 @@ model User {
   staffRatings StaffRating[]
   staffTips    StaffTip[]
   comments     Comment[]
+  auditLogs    AuditLog[]
 
   @@index([email])
   @@index([role])
@@ -104,10 +120,14 @@ model Bar {
   longitude     Decimal?    @db.Decimal(11, 8)
   ownerId       String
   owner         User        @relation(fields: [ownerId], references: [id], onDelete: Cascade)
-  createdAt     DateTime    @default(now())
-  updatedAt     DateTime    @updatedAt
-  deletedAt     DateTime?
 
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  createdBy String?
+  updatedBy String?
+
+  // Relations
   images      BarImage[]
   reviews     Review[]
   events      Event[]
@@ -124,16 +144,20 @@ model Bar {
 }
 
 model BarImage {
-  id           String   @id @default(cuid())
-  barId        String
-  bar          Bar      @relation(fields: [barId], references: [id], onDelete: Cascade)
+  id    String @id @default(cuid())
+  barId String
+  bar   Bar    @relation(fields: [barId], references: [id], onDelete: Cascade)
+
   url          String
   publicId     String
   altText      String?
-  isPrimary    Boolean  @default(false)
-  displayOrder Int      @default(0)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  isPrimary    Boolean @default(false)
+  displayOrder Int     @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String?
+  updatedBy String?
 
   @@index([barId])
   @@index([isPrimary])
@@ -145,19 +169,26 @@ model BarImage {
 // ============================================================================
 
 model Review {
-  id         String    @id @default(cuid())
-  barId      String
-  bar        Bar       @relation(fields: [barId], references: [id], onDelete: Cascade)
-  userId     String
-  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  rating     Int
-  title      String?
-  content    String    @db.Text
-  isApproved Boolean   @default(false)
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-  deletedAt  DateTime?
+  id    String @id @default(cuid())
+  barId String
+  bar   Bar    @relation(fields: [barId], references: [id], onDelete: Cascade)
 
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  rating  Int
+  title   String?
+  content String  @db.Text
+
+  isApproved Boolean @default(false)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  createdBy String?
+  updatedBy String?
+
+  // Relations
   comments Comment[]
 
   @@unique([barId, userId])
@@ -170,16 +201,22 @@ model Review {
 }
 
 model Comment {
-  id         String    @id @default(cuid())
-  content    String    @db.Text
-  reviewId   String
-  review     Review    @relation(fields: [reviewId], references: [id], onDelete: Cascade)
-  userId     String
-  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  isApproved Boolean   @default(false)
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
-  deletedAt  DateTime?
+  id      String @id @default(cuid())
+  content String @db.Text
+
+  reviewId String
+  review   Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  isApproved Boolean @default(false)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  createdBy String?
+  updatedBy String?
 
   @@index([reviewId])
   @@index([userId])
@@ -193,21 +230,27 @@ model Comment {
 // ============================================================================
 
 model BlogPost {
-  id            String    @id @default(cuid())
-  slug          String    @unique
+  id            String  @id @default(cuid())
+  slug          String  @unique
   title         String
-  excerpt       String?   @db.Text
-  content       String    @db.LongText
+  excerpt       String? @db.Text
+  content       String  @db.LongText
   coverImageUrl String?
   coverImageAlt String?
-  authorId      String
-  author        User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  isPublished   Boolean   @default(false)
-  publishedAt   DateTime?
-  tags          String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
-  deletedAt     DateTime?
+
+  authorId String
+  author   User   @relation(fields: [authorId], references: [id], onDelete: Cascade)
+
+  isPublished Boolean   @default(false)
+  publishedAt DateTime?
+
+  tags String?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  createdBy String?
+  updatedBy String?
 
   @@index([slug])
   @@index([authorId])
@@ -222,24 +265,32 @@ model BlogPost {
 // ============================================================================
 
 model StaffProfile {
-  id              String    @id @default(cuid())
-  slug            String    @unique
-  userId          String    @unique
-  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  displayName     String
-  bio             String?   @db.Text
-  photoUrl        String?
-  photoAlt        String?
+  id   String @id @default(cuid())
+  slug String @unique
+
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  displayName String
+  bio         String? @db.Text
+  photoUrl    String?
+  photoAlt    String?
+
   currentBar      String?
   position        String?
   yearsExperience Int?
-  specialties     String?   @db.Text
-  isActive        Boolean   @default(true)
-  isApproved      Boolean   @default(false)
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  deletedAt       DateTime?
+  specialties     String? @db.Text
 
+  isActive   Boolean @default(true)
+  isApproved Boolean @default(false)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  createdBy String?
+  updatedBy String?
+
+  // Relations
   ratings StaffRating[]
   tips    StaffTip[]
 
@@ -297,17 +348,24 @@ model Event {
   title       String
   description String?   @db.Text
   eventType   EventType
-  barId       String
-  bar         Bar       @relation(fields: [barId], references: [id], onDelete: Cascade)
-  startTime   DateTime
-  endTime     DateTime?
-  imageUrl    String?
-  imageAlt    String?
-  isFeatured  Boolean   @default(false)
-  isApproved  Boolean   @default(false)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  deletedAt   DateTime?
+
+  barId String
+  bar   Bar    @relation(fields: [barId], references: [id], onDelete: Cascade)
+
+  startTime DateTime
+  endTime   DateTime?
+
+  imageUrl String?
+  imageAlt String?
+
+  isFeatured Boolean @default(false)
+  isApproved Boolean @default(false)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  deletedAt DateTime?
+  createdBy String?
+  updatedBy String?
 
   @@index([barId])
   @@index([startTime])
@@ -334,4 +392,34 @@ model FavoriteBar {
   @@index([userId])
   @@index([barId])
   @@map("favorite_bars")
+}
+
+// ============================================================================
+// AUDIT LOG
+// ============================================================================
+
+model AuditLog {
+  id String @id @default(cuid())
+
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  action     AuditAction
+  entityType String
+  entityId   String
+
+  oldValues Json?
+  newValues Json?
+
+  ipAddress String?
+  userAgent String?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([action])
+  @@index([entityType])
+  @@index([entityId])
+  @@index([createdAt])
+  @@map("audit_logs")
 }
