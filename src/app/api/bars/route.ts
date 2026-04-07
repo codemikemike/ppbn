@@ -43,6 +43,7 @@ export async function GET(request: Request) {
 
     const areaParam = url.searchParams.get("area");
     const categoryParam = url.searchParams.get("category");
+    const searchParam = url.searchParams.get("search");
 
     if (areaParam && areaParam !== "All" && !isBarArea(areaParam)) {
       return NextResponse.json(
@@ -71,9 +72,12 @@ export async function GET(request: Request) {
         ? categoryParam
         : undefined;
 
+    const search = searchParam?.trim() ? searchParam.trim() : undefined;
+
     const bars = await barService.listApprovedBars({
       ...(area ? { area } : {}),
       ...(category ? { category } : {}),
+      ...(search ? { search } : {}),
     });
 
     return NextResponse.json(bars);

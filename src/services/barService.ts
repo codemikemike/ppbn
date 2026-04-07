@@ -16,7 +16,16 @@ export type BarService = {
  * @param repo Repository implementation.
  */
 export const createBarService = (repo: IBarRepository): BarService => ({
-  listApprovedBars: async (filters?: BarListFilters) => repo.findAll(filters),
+  listApprovedBars: async (filters?: BarListFilters) => {
+    const normalizedSearch = filters?.search?.trim();
+
+    return repo.findAll({
+      ...filters,
+      ...(normalizedSearch
+        ? { search: normalizedSearch }
+        : { search: undefined }),
+    });
+  },
   getApprovedBarBySlug: async (slug: string) => repo.findBySlug(slug),
 });
 

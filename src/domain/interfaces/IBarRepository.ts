@@ -9,6 +9,11 @@ import type { BarCategory } from "../dtos/BarCategory";
 export type BarListFilters = {
   area?: BarArea;
   category?: BarCategory;
+
+  /**
+   * Case-insensitive substring match on bar name or description.
+   */
+  search?: string;
 };
 
 /**
