@@ -3,4 +3,14 @@ import { authOptions } from "@/lib/auth";
 
 const handler = NextAuth(authOptions);
 
-export { handler as GET, handler as POST };
+/**
+ * NextAuth handler for GET requests (App Router).
+ * @returns A NextAuth response.
+ */
+export const GET = handler;
+
+/**
+ * NextAuth handler for POST requests (App Router).
+ * @returns A NextAuth response.
+ */
+export const POST = handler;
