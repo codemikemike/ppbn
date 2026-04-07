@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import type { IUserRepository } from "@/domain/interfaces/IUserRepository";
 import type { RegisterDto } from "@/domain/dtos/RegisterDto";
 import type { UserDto } from "@/domain/dtos/UserDto";
-import { registerSchema } from "@/domain/validations/authSchema";
+import { loginSchema, registerSchema } from "@/domain/validations/authSchema";
 import {
   EmailExistsError,
   ValidationError,
@@ -61,6 +61,16 @@ export class AuthService {
   }
 
   async authenticateUser(email: string, password: string): Promise<UserDto> {
+    const validationResult = loginSchema.safeParse({ email, password });
+
+    if (!validationResult.success) {
+      const issues = validationResult.error.issues.map((err) => ({
+        field: err.path.join("."),
+        message: err.message,
+      }));
+      throw new ValidationError("Validation failed", issues);
+    }
+
     const user = await this.userRepository.findByEmailWithPassword(email);
 
     if (!user) {
