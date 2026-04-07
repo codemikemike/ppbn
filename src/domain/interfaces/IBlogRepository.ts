@@ -17,4 +17,10 @@ export interface IBlogRepository {
    * @param filters Pagination filters.
    */
   findAllPublished(filters: PublishedBlogPostFilters): Promise<BlogPostDto[]>;
+
+  /**
+   * Finds a single published, not-deleted blog post by slug.
+   * @param slug Post slug.
+   */
+  findBySlug(slug: string): Promise<BlogPostDto | null>;
 }

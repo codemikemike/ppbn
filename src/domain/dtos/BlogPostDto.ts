@@ -10,5 +10,6 @@ export type BlogPostDto = {
   authorName: string | null;
   publishedAt: Date;
   category: string | null;
+  tags: string[];
   imageUrl: string | null;
 };
