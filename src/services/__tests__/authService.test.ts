@@ -28,6 +28,9 @@ vi.mock("@/repositories/userRepository", () => {
         throw new Error("Unexpected call to default userRepository mock");
       }),
       findByEmailWithPassword: vi.fn(async () => null),
+      setResetToken: vi.fn().mockResolvedValue(undefined),
+      findByResetToken: vi.fn().mockResolvedValue(null),
+      updatePassword: vi.fn().mockResolvedValue(undefined),
     } satisfies IUserRepository,
   };
 });
@@ -56,6 +59,9 @@ const createFakeUserRepository = (overrides?: Partial<IUserRepository>) => {
       return user;
     },
     findByEmailWithPassword: async () => null,
+    setResetToken: vi.fn().mockResolvedValue(undefined),
+    findByResetToken: vi.fn().mockResolvedValue(null),
+    updatePassword: vi.fn().mockResolvedValue(undefined),
   };
 
   return {
