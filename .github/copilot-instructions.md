@@ -1,9 +1,11 @@
 # PPBN — Project Notepad & Copilot Instructions
 
 ## Project Overview
+
 Phnom Penh By Night (PPBN) is a nightlife discovery platform for bars, venues, and nightlife professionals in Phnom Penh, Cambodia.
 
 ## Tech Stack
+
 - Next.js 15 (App Router)
 - TypeScript (strict mode, no any)
 - Tailwind CSS + shadcn/ui
@@ -18,15 +20,18 @@ Phnom Penh By Night (PPBN) is a nightlife discovery platform for bars, venues, a
 - ESLint + Prettier + Husky + lint-staged (code quality)
 
 ## Hosting & Deployment
+
 - Hostinger Business Plan (Managed Node.js)
 - MySQL database on Hostinger
 - Cloudinary for image storage and CDN
 - GitHub for version control and CI/CD
 
 ## Language
+
 All code, comments, documentation, and commit messages must be written in English.
 
 ## Documentation
+
 All documentation must be written in Markdown (.md) files.
 
 ---
@@ -37,18 +42,22 @@ This is the most important section. Every layer has strict boundaries.
 Violating these rules is never acceptable regardless of convenience.
 
 PRESENTATION LAYER — app/ components/ hooks/
+
 - Knows about: DTOs only
 - NEVER knows about: domain entities, db, Prisma
 
 APPLICATION LAYER — services/
+
 - Knows about: interfaces, DTOs
 - NEVER knows about: db, Prisma, HTTP, UI
 
 INFRASTRUCTURE LAYER — repositories/ lib/db.ts
+
 - Knows about: interfaces, Prisma, DTOs
 - NEVER knows about: HTTP, UI, services
 
 DOMAIN LAYER — domain/interfaces domain/dtos domain/validations domain/errors
+
 - Knows about: NOTHING external
 - Pure TypeScript only — zero imports
 
@@ -67,8 +76,8 @@ import { db } from "@/lib/db" // in services/barService.ts — NEVER
 // CORRECT — API route calls service only
 import { barService } from "@/services/barService"
 export async function GET() {
-  const bars = await barService.getBars()
-  return NextResponse.json(bars)
+const bars = await barService.getBars()
+return NextResponse.json(bars)
 }
 
 // CORRECT — Only repository imports db
@@ -89,8 +98,8 @@ findAll: () => db.bar.findMany() // returns Prisma Bar — NEVER
 
 // CORRECT
 findAll: async () => {
-  const bars = await db.bar.findMany()
-  return bars.map(toBarDto)
+const bars = await db.bar.findMany()
+return bars.map(toBarDto)
 }
 
 RULE 4: Dependency direction always points inward
@@ -101,132 +110,138 @@ Presentation -> Application -> Infrastructure -> Domain
 ## Folder Structure
 
 src/
-├── app/                          Presentation Layer
-│   ├── (auth)/                   Login and register pages
-│   ├── bars/                     Bar pages
-│   ├── blog/                     Blog pages
-│   ├── staff/                    Staff pages
-│   ├── events/                   Events page
-│   ├── tonight/                  Tonight page
-│   ├── dashboard/                Dashboard — login required
-│   ├── admin/                    Admin panel — admin role required
-│   └── api/                      API endpoints — calls services ONLY
+├── app/ Presentation Layer
+│ ├── (auth)/ Login and register pages
+│ ├── bars/ Bar pages
+│ ├── blog/ Blog pages
+│ ├── staff/ Staff pages
+│ ├── events/ Events page
+│ ├── tonight/ Tonight page
+│ ├── dashboard/ Dashboard — login required
+│ ├── admin/ Admin panel — admin role required
+│ └── api/ API endpoints — calls services ONLY
 │
-├── components/                   Presentation Layer — UI only, uses DTOs
-│   ├── ui/                       shadcn/ui (do not modify)
-│   ├── shared/
-│   ├── bars/
-│   ├── blog/
-│   ├── staff/
-│   └── events/
+├── components/ Presentation Layer — UI only, uses DTOs
+│ ├── ui/ shadcn/ui (do not modify)
+│ ├── shared/
+│ ├── bars/
+│ ├── blog/
+│ ├── staff/
+│ └── events/
 │
-├── hooks/                        Custom React hooks
+├── hooks/ Custom React hooks
 │
-├── services/                     Application Layer — business logic
-│   ├── barService.ts
-│   ├── reviewService.ts
-│   ├── blogService.ts
-│   ├── staffService.ts
-│   └── authService.ts
+├── services/ Application Layer — business logic
+│ ├── barService.ts
+│ ├── reviewService.ts
+│ ├── blogService.ts
+│ ├── staffService.ts
+│ └── authService.ts
 │
-├── repositories/                 Infrastructure Layer — ONLY place db is used
-│   ├── barRepository.ts
-│   ├── reviewRepository.ts
-│   ├── blogRepository.ts
-│   └── staffRepository.ts
+├── repositories/ Infrastructure Layer — ONLY place db is used
+│ ├── barRepository.ts
+│ ├── reviewRepository.ts
+│ ├── blogRepository.ts
+│ └── staffRepository.ts
 │
-├── domain/                       Domain Layer — pure TypeScript, ZERO external imports
-│   ├── interfaces/               Repository contracts
-│   ├── dtos/                     Data Transfer Objects
-│   ├── validations/              Zod schemas
-│   ├── errors/                   Domain error classes
-│   └── constants/
+├── domain/ Domain Layer — pure TypeScript, ZERO external imports
+│ ├── interfaces/ Repository contracts
+│ ├── dtos/ Data Transfer Objects
+│ ├── validations/ Zod schemas
+│ ├── errors/ Domain error classes
+│ └── constants/
 │
 └── lib/
-    ├── db.ts                     Prisma singleton — ONLY imported by repositories/
-    ├── auth.ts                   NextAuth config
-    ├── cloudinary.ts
-    └── utils.ts
+├── db.ts Prisma singleton — ONLY imported by repositories/
+├── auth.ts NextAuth config
+├── cloudinary.ts
+└── utils.ts
 
 ---
 
 ## User Roles & Access Control
 
-| Role | Description |
-|---|---|
-| Visitor | No login required — read only |
+| Role           | Description                                                |
+| -------------- | ---------------------------------------------------------- |
+| Visitor        | No login required — read only                              |
 | RegisteredUser | Login required — can rate, review, comment, save favorites |
-| BarOwner | Login required — can manage own bars and events |
-| BlogWriter | Login required — can create and edit blog posts |
-| Staff | Login required — has staff profile with ratings and tips |
-| Admin | Full access — manages all content and users |
+| BarOwner       | Login required — can manage own bars and events            |
+| BlogWriter     | Login required — can create and edit blog posts            |
+| Staff          | Login required — has staff profile with ratings and tips   |
+| Admin          | Full access — manages all content and users                |
 
 ---
 
 ## Route Structure
 
 ### Public Routes
-/                     Homepage
-/bars                 Bar listing
-/bars/[slug]          Bar detail
-/blog                 Blog listing
-/blog/[slug]          Blog post
-/staff                Staff listing
-/staff/[slug]         Staff profile
-/events               Events calendar
-/tonight              Tonight in Phnom Penh
-/login                Login page
-/register             Register page
+
+/ Homepage
+/bars Bar listing
+/bars/[slug] Bar detail
+/blog Blog listing
+/blog/[slug] Blog post
+/staff Staff listing
+/staff/[slug] Staff profile
+/events Events calendar
+/tonight Tonight in Phnom Penh
+/login Login page
+/register Register page
 
 ### Dashboard Routes — login required
-/dashboard                      Overview
-/dashboard/bars                 My bars (BarOwner)
-/dashboard/bars/new             Create bar
-/dashboard/bars/[slug]/edit     Edit bar
-/dashboard/blog                 My blog posts (BlogWriter)
-/dashboard/blog/new             Create post
-/dashboard/blog/[slug]/edit     Edit post
-/dashboard/staff                My staff profile
-/dashboard/profile              My profile and settings
-/dashboard/events               My events
+
+/dashboard Overview
+/dashboard/bars My bars (BarOwner)
+/dashboard/bars/new Create bar
+/dashboard/bars/[slug]/edit Edit bar
+/dashboard/blog My blog posts (BlogWriter)
+/dashboard/blog/new Create post
+/dashboard/blog/[slug]/edit Edit post
+/dashboard/staff My staff profile
+/dashboard/profile My profile and settings
+/dashboard/events My events
 
 ### Admin Routes — Admin role required
-/admin                    Admin overview
-/admin/bars               Approve / reject bars
-/admin/users              Manage users and roles
-/admin/reviews            Moderate reviews and comments
-/admin/blog               Manage all blog posts
-/admin/staff              Manage staff profiles
-/admin/events             Manage events
+
+/admin Admin overview
+/admin/bars Approve / reject bars
+/admin/users Manage users and roles
+/admin/reviews Moderate reviews and comments
+/admin/blog Manage all blog posts
+/admin/staff Manage staff profiles
+/admin/events Manage events
 
 ---
 
 ## Authentication Architecture
 
 ### NextAuth.js Setup
+
 - Provider: Credentials (email + password)
 - Future providers: Google, Facebook
 - Session strategy: JWT
 - Session includes: id, email, role, name
 
 ### Middleware — Route Protection
+
 // middleware.ts
 import { withAuth } from "next-auth/middleware"
 export default withAuth({
-  callbacks: {
-    authorized({ token, req }) {
-      const path = req.nextUrl.pathname
-      if (path.startsWith("/admin")) return token?.role === "Admin"
-      if (path.startsWith("/dashboard")) return !!token
-      return true
-    },
-  },
+callbacks: {
+authorized({ token, req }) {
+const path = req.nextUrl.pathname
+if (path.startsWith("/admin")) return token?.role === "Admin"
+if (path.startsWith("/dashboard")) return !!token
+return true
+},
+},
 })
 export const config = {
-  matcher: ["/dashboard/:path*", "/admin/:path*"],
+matcher: ["/dashboard/:path*", "/admin/:path*"],
 }
 
 ### Role Check Pattern
+
 const session = await getServerSession(authOptions)
 if (!session) redirect("/login")
 if (session.user.role !== "Admin") redirect("/")
@@ -236,6 +251,7 @@ if (session.user.role !== "Admin") redirect("/")
 ## Architecture Principles
 
 ### SOLID
+
 - S: Every file has ONE responsibility
 - O: Extend via new files and composition — never modify working code
 - L: All IRepository implementations must honor the interface contract fully
@@ -243,6 +259,7 @@ if (session.user.role !== "Admin") redirect("/")
 - D: Services depend on IRepository interfaces, not concrete repositories
 
 ### GOF Patterns
+
 - Singleton: Prisma client in lib/db.ts
 - Repository: Database access behind IRepository interfaces
 - Strategy: Sorting/filtering as interchangeable functions
@@ -250,6 +267,7 @@ if (session.user.role !== "Admin") redirect("/")
 - Factory: createBarService(repo) for testable, injectable services
 
 ### Other Principles
+
 - Composition over Inheritance
 - DRY — shared logic in hooks/ or lib/utils.ts
 - KISS — no over-engineering
@@ -259,34 +277,34 @@ if (session.user.role !== "Admin") redirect("/")
 
 ## Naming Conventions
 
-| Type | Convention | Example |
-|---|---|---|
-| Components | PascalCase | BarCard.tsx |
-| Hooks | camelCase + use | useBarFilters.ts |
-| Services | camelCase + Service | barService.ts |
-| Repositories | camelCase + Repository | barRepository.ts |
-| Interfaces | PascalCase + I prefix | IBarRepository.ts |
-| DTOs | PascalCase + Dto | BarDto.ts |
-| Zod schemas | camelCase + Schema | barSchema.ts |
-| Mappers | camelCase + to prefix | toBarDto |
-| API routes | kebab-case | /api/bars |
+| Type         | Convention             | Example           |
+| ------------ | ---------------------- | ----------------- |
+| Components   | PascalCase             | BarCard.tsx       |
+| Hooks        | camelCase + use        | useBarFilters.ts  |
+| Services     | camelCase + Service    | barService.ts     |
+| Repositories | camelCase + Repository | barRepository.ts  |
+| Interfaces   | PascalCase + I prefix  | IBarRepository.ts |
+| DTOs         | PascalCase + Dto       | BarDto.ts         |
+| Zod schemas  | camelCase + Schema     | barSchema.ts      |
+| Mappers      | camelCase + to prefix  | toBarDto          |
+| API routes   | kebab-case             | /api/bars         |
 
 ---
 
 ## Domain Language
 
-| Term | Definition |
-|---|---|
-| Bar | A nightlife venue |
-| Area | Location zone (Riverside, BKK1, Street 136, Street 104) |
-| Category | Type of bar (Cocktail Bar, Rooftop Bar, Club, Sports Bar) |
-| StaffProfile | Bar staff member with ratings and tips |
-| Review | Written review with star rating |
-| Event | Nightlife event (DJ night, Ladies Night, etc.) |
-| Featured | Promoted or paid listing |
-| Slug | URL-friendly name (rose-bar, martini-bar) |
-| DTO | Data Transfer Object — crosses layer boundaries |
-| Entity | Prisma model — stays inside repositories only |
+| Term         | Definition                                                |
+| ------------ | --------------------------------------------------------- |
+| Bar          | A nightlife venue                                         |
+| Area         | Location zone (Riverside, BKK1, Street 136, Street 104)   |
+| Category     | Type of bar (Cocktail Bar, Rooftop Bar, Club, Sports Bar) |
+| StaffProfile | Bar staff member with ratings and tips                    |
+| Review       | Written review with star rating                           |
+| Event        | Nightlife event (DJ night, Ladies Night, etc.)            |
+| Featured     | Promoted or paid listing                                  |
+| Slug         | URL-friendly name (rose-bar, martini-bar)                 |
+| DTO          | Data Transfer Object — crosses layer boundaries           |
+| Entity       | Prisma model — stays inside repositories only             |
 
 ---
 
@@ -355,13 +373,14 @@ if (session.user.role !== "Admin") redirect("/")
 - .env.example — commit with empty values
 - .env.production — server only
 - Never hardcode keys or URLs
-- Client variables prefixed with NEXT_PUBLIC_
+- Client variables prefixed with NEXT*PUBLIC*
 
 ---
 
 ## Git Discipline
 
 Commit convention:
+
 - feat: add bar rating system
 - fix: correct star rating calculation
 - chore: update dependencies
@@ -371,6 +390,7 @@ Commit convention:
 - style: format with prettier
 
 Branch strategy:
+
 - Never commit to main directly
 - One branch per feature: feature/bar-ratings
 - Pull Request required before merge
@@ -379,6 +399,8 @@ Branch strategy:
 
 ## Testing Strategy
 
+- All new UC implementations must include unit tests (at minimum for the service layer)
+- Tests live in `__tests__` folders next to the code they test
 - Unit tests: services/ — mock IRepository interface, never db
 - Component tests: components/ — use DTOs as props
 - E2E tests: login, create bar, write review
@@ -412,68 +434,73 @@ Every feature must be documented before code is written.
 When asked to implement a use case, generate ALL artifacts in order.
 
 ### Artifact Order
-1. UseCase         — actors, preconditions, main flow, postconditions
+
+1. UseCase — actors, preconditions, main flow, postconditions
 2. UserFlowDiagram — Mermaid flowchart of user journey
-3. Wireframe       — Mermaid or ASCII layout of UI
-4. DM              — Domain Model (Mermaid class diagram)
-5. SSD             — System Sequence Diagram (Mermaid)
-6. OC              — Operation Contract (pre/post per operation)
-7. SD              — Sequence Diagram between layers (Mermaid)
-8. DCD             — Design Class Diagram (Mermaid)
-9. ERD             — Entity Relationship Diagram (Mermaid)
-10. Code-SQL       — migrations, views, audit log
-11. Code-Backend   — interfaces, DTOs, repositories, services, API routes
+3. Wireframe — Mermaid or ASCII layout of UI
+4. DM — Domain Model (Mermaid class diagram)
+5. SSD — System Sequence Diagram (Mermaid)
+6. OC — Operation Contract (pre/post per operation)
+7. SD — Sequence Diagram between layers (Mermaid)
+8. DCD — Design Class Diagram (Mermaid)
+9. ERD — Entity Relationship Diagram (Mermaid)
+10. Code-SQL — migrations, views, audit log
+11. Code-Backend — interfaces, DTOs, repositories, services, API routes
 12. Code-Backend-Test
-13. Code-UI        — components, hooks, pages
+13. Code-UI — components, hooks, pages
 14. Code-UI-Test
 
 ### Use Case Numbering
 
 #### Public
-UC001  Bars — List all bars
-UC002  Bars — View bar detail
-UC003  Bars — Filter by area and category
-UC004  Bars — Search bars
-UC005  Bars — View featured bars
-UC006  Bars — View trending bars
-UC007  Reviews — Submit review (RegisteredUser)
-UC008  Reviews — View reviews
-UC009  Staff — List staff
-UC010  Staff — View staff profile
-UC011  Staff — Rate staff (RegisteredUser)
-UC012  Staff — Send tip (RegisteredUser)
-UC013  Blog — List posts
-UC014  Blog — View post
-UC015  Events — List events
-UC016  Events — View tonight
-UC017  Map — View bars on map
+
+UC001 Bars — List all bars
+UC002 Bars — View bar detail
+UC003 Bars — Filter by area and category
+UC004 Bars — Search bars
+UC005 Bars — View featured bars
+UC006 Bars — View trending bars
+UC007 Reviews — Submit review (RegisteredUser)
+UC008 Reviews — View reviews
+UC009 Staff — List staff
+UC010 Staff — View staff profile
+UC011 Staff — Rate staff (RegisteredUser)
+UC012 Staff — Send tip (RegisteredUser)
+UC013 Blog — List posts
+UC014 Blog — View post
+UC015 Events — List events
+UC016 Events — View tonight
+UC017 Map — View bars on map
 
 #### Auth
-UC018  Auth — Register
-UC019  Auth — Login
-UC020  Auth — Logout
-UC021  Auth — Forgot password
+
+UC018 Auth — Register
+UC019 Auth — Login
+UC020 Auth — Logout
+UC021 Auth — Forgot password
 
 #### Dashboard
-UC022  Dashboard — View overview
-UC023  Dashboard — Create bar (BarOwner)
-UC024  Dashboard — Edit bar (BarOwner)
-UC025  Dashboard — Create event (BarOwner)
-UC026  Dashboard — View bar analytics (BarOwner)
-UC027  Dashboard — Create blog post (BlogWriter)
-UC028  Dashboard — Edit blog post (BlogWriter)
-UC029  Dashboard — Manage staff profile (Staff)
-UC030  Dashboard — Save favourite bars (RegisteredUser)
-UC031  Dashboard — View my reviews (RegisteredUser)
+
+UC022 Dashboard — View overview
+UC023 Dashboard — Create bar (BarOwner)
+UC024 Dashboard — Edit bar (BarOwner)
+UC025 Dashboard — Create event (BarOwner)
+UC026 Dashboard — View bar analytics (BarOwner)
+UC027 Dashboard — Create blog post (BlogWriter)
+UC028 Dashboard — Edit blog post (BlogWriter)
+UC029 Dashboard — Manage staff profile (Staff)
+UC030 Dashboard — Save favourite bars (RegisteredUser)
+UC031 Dashboard — View my reviews (RegisteredUser)
 
 #### Admin
-UC032  Admin — View dashboard overview
-UC033  Admin — Approve / reject bars
-UC034  Admin — Manage users and roles
-UC035  Admin — Moderate reviews and comments
-UC036  Admin — Manage blog posts
-UC037  Admin — Manage featured listings
-UC038  Admin — View site analytics
+
+UC032 Admin — View dashboard overview
+UC033 Admin — Approve / reject bars
+UC034 Admin — Manage users and roles
+UC035 Admin — Moderate reviews and comments
+UC036 Admin — Manage blog posts
+UC037 Admin — Manage featured listings
+UC038 Admin — View site analytics
 
 ---
 
@@ -483,12 +510,14 @@ Every Use Case must have ALL artifacts before code is written.
 This is non-negotiable. Code without documentation is a violation.
 
 ### Validation — are we building the right thing?
+
 - Every UseCase must be validated against the project spec before implementation
 - Wireframes must be reviewed before UI is built
 - Domain Model must match the ERD before any migration is created
 - Use Cases must cover all user roles that interact with the feature
 
 ### Verification — are we building it right?
+
 - Every layer boundary must be verified against Clean Architecture rules
 - Every repository must be verified to return DTOs — never Prisma models
 - Every API route must be verified to call services only
@@ -496,18 +525,27 @@ This is non-negotiable. Code without documentation is a violation.
 - Tests must verify behavior described in Operation Contracts
 
 ### Architecture Decision Records (ADR)
+
 Every significant technical decision must be documented in docs/decisions/.
 
 ADR Template:
+
 # ADR001 — Title
+
 ## Status: Accepted
+
 ## Context: Why we needed to make a decision
+
 ## Decision: What we decided
+
 ## Reasons: Why we decided this
+
 ## Consequences: What this means going forward
 
 ### Definition of Done
+
 A feature is ONLY done when ALL of these are true:
+
 - Use Case artifacts written (UseCase, SSD, SD, DCD, ERD)
 - Operation Contracts written for all service operations
 - Code follows Clean Architecture — verified by ESLint boundaries
@@ -527,9 +565,11 @@ A feature is ONLY done when ALL of these are true:
 ## Pull Request Checklist
 
 ## What does this PR change?
+
 ## Use Case: UC###
 
 ## Checklist
+
 - [ ] No any types
 - [ ] Zod validation on all API inputs
 - [ ] API routes call services only — never db or repositories
