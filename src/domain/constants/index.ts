@@ -10,5 +10,5 @@ export const BAR_CATEGORY_LABELS: Record<string, string> = {
   WineBar: "Wine Bar",
   Lounge: "Lounge",
   GayBar: "Gay Bar",
-  LiveMusic: "Live Music Bar",
+  LiveMusic: "Live Music",
 };
