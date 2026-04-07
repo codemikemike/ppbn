@@ -31,4 +31,21 @@ export interface IBarRepository {
    * @param slug Bar slug.
    */
   findBySlug(slug: string): Promise<BarDetailDto | null>;
+
+  /**
+   * Lists approved, non-deleted featured bars.
+   */
+  findFeaturedBars(): Promise<BarDto[]>;
+
+  /**
+   * Lists approved, non-deleted bars by ids.
+   * @param ids Bar ids.
+   */
+  findByIds(ids: string[]): Promise<BarDto[]>;
+
+  /**
+   * Lists approved, non-deleted bars that are open at the given time.
+   * @param dateTime Date/time to evaluate against `openingHours`.
+   */
+  findOpenBarsAt(dateTime: Date): Promise<BarDto[]>;
 }

@@ -64,6 +64,58 @@ const computeAverageRating = (
   return sum / reviews.length;
 };
 
+const parseTimeToMinutes = (value: string): number | null => {
+  const trimmed = value.trim();
+  const match = /^([01]\d|2[0-3]):([0-5]\d)$/.exec(trimmed);
+  if (!match) return null;
+
+  const hours = Number(match[1]);
+  const minutes = Number(match[2]);
+  return hours * 60 + minutes;
+};
+
+const getMinutesInPhnomPenh = (dateTime: Date): number | null => {
+  const formatter = new Intl.DateTimeFormat("en-GB", {
+    timeZone: "Asia/Phnom_Penh",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  });
+
+  const parts = formatter.formatToParts(dateTime);
+  const hourPart = parts.find((p) => p.type === "hour")?.value;
+  const minutePart = parts.find((p) => p.type === "minute")?.value;
+
+  if (!hourPart || !minutePart) return null;
+
+  const hours = Number(hourPart);
+  const minutes = Number(minutePart);
+  if (!Number.isFinite(hours) || !Number.isFinite(minutes)) return null;
+
+  return hours * 60 + minutes;
+};
+
+const isOpenAt = (openingHours: string, dateTime: Date): boolean => {
+  const parts = openingHours.split("-");
+  if (parts.length !== 2) return false;
+
+  const startMinutes = parseTimeToMinutes(parts[0]);
+  const endMinutes = parseTimeToMinutes(parts[1]);
+  if (startMinutes === null || endMinutes === null) return false;
+
+  const nowMinutes = getMinutesInPhnomPenh(dateTime);
+  if (nowMinutes === null) return false;
+
+  if (startMinutes === endMinutes) return true;
+
+  const crossesMidnight = endMinutes < startMinutes;
+  if (!crossesMidnight) {
+    return nowMinutes >= startMinutes && nowMinutes < endMinutes;
+  }
+
+  return nowMinutes >= startMinutes || nowMinutes < endMinutes;
+};
+
 /**
  * Bar repository implementation backed by Prisma.
  */
@@ -152,5 +204,78 @@ export const barRepository: IBarRepository = {
       images,
       reviews,
     };
+  },
+
+  /**
+   * Lists approved, non-deleted featured bars.
+   */
+  async findFeaturedBars(): Promise<BarDto[]> {
+    const bars = await db.bar.findMany({
+      where: {
+        isApproved: true,
+        deletedAt: null,
+        isFeatured: true,
+      },
+      orderBy: [{ name: "asc" }],
+    });
+
+    return bars.map(toBarDto);
+  },
+
+  /**
+   * Lists approved, non-deleted bars by ids.
+   * @param ids Bar ids.
+   */
+  async findByIds(ids: string[]): Promise<BarDto[]> {
+    const uniqueIds = Array.from(
+      new Set(ids.map((id) => id.trim()).filter(Boolean)),
+    );
+    if (uniqueIds.length === 0) return [];
+
+    const bars = await db.bar.findMany({
+      where: {
+        id: {
+          in: uniqueIds,
+        },
+        isApproved: true,
+        deletedAt: null,
+      },
+      orderBy: [{ name: "asc" }],
+    });
+
+    return bars.map(toBarDto);
+  },
+
+  /**
+   * Lists approved, non-deleted bars that are open at the given time.
+   * @param dateTime Date/time to evaluate against `openingHours`.
+   */
+  async findOpenBarsAt(dateTime: Date): Promise<BarDto[]> {
+    const bars = await db.bar.findMany({
+      where: {
+        isApproved: true,
+        deletedAt: null,
+        openingHours: {
+          not: null,
+        },
+      },
+      select: {
+        id: true,
+        slug: true,
+        name: true,
+        area: true,
+        category: true,
+        isFeatured: true,
+        openingHours: true,
+      },
+      orderBy: [{ isFeatured: "desc" }, { name: "asc" }],
+    });
+
+    const openBars = bars.filter((bar) => {
+      if (!bar.openingHours) return false;
+      return isOpenAt(bar.openingHours, dateTime);
+    });
+
+    return openBars.map((bar) => toBarDto(bar as unknown as Bar));
   },
 };

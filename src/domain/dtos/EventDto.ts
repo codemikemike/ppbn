@@ -10,6 +10,33 @@ export type EventType =
   | "SpecialEvent";
 
 /**
+ * Public event representation for the Tonight page and APIs.
+ */
+export type EventDto = {
+  id: string;
+  title: string;
+  description: string | null;
+  eventType: EventType;
+  startTime: Date;
+  endTime: Date | null;
+  barId: string;
+  barName: string;
+  barSlug: string;
+  imageUrl: string | null;
+  imageAlt: string | null;
+};
+/**
+ * Event type values.
+ */
+export type EventType =
+  | "DJNight"
+  | "LadiesNight"
+  | "LiveMusic"
+  | "HappyHour"
+  | "ThemeNight"
+  | "SpecialEvent";
+
+/**
  * Public event representation for list and detail views.
  */
 export type EventDto = {

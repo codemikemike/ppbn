@@ -1,3 +1,19 @@
+import type { EventDto } from "../dtos/EventDto";
+
+/**
+ * Event repository contract.
+ */
+export interface IEventRepository {
+  /**
+   * Lists publicly visible events that overlap the given time range.
+   *
+   * Range is treated as [start, end) in terms of day boundaries.
+   *
+   * @param start Inclusive start.
+   * @param end Exclusive end.
+   */
+  findVisibleOverlappingRange(start: Date, end: Date): Promise<EventDto[]>;
+}
 import type { EventDto, EventType } from "../dtos/EventDto";
 
 /**
