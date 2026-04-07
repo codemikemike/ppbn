@@ -3,6 +3,7 @@ import type { BarDetailDto } from "../dtos/BarDetailDto";
 import type { BarArea } from "../dtos/BarArea";
 import type { BarCategory } from "../dtos/BarCategory";
 import type { RateBarResultDto } from "../dtos/RateBarResultDto";
+import type { UpsertReviewResultDto } from "../dtos/UpsertReviewResultDto";
 
 /**
  * Optional filters for listing publicly visible bars.
@@ -62,4 +63,19 @@ export interface IBarRepository {
     userId: string,
     rating: number,
   ): Promise<RateBarResultDto>;
+
+  /**
+   * Upserts a user's review for a bar.
+   *
+   * @param barId Bar id.
+   * @param userId User id.
+   * @param rating Rating in range 1-5.
+   * @param comment Review comment content.
+   */
+  upsertReview(
+    barId: string,
+    userId: string,
+    rating: number,
+    comment: string,
+  ): Promise<UpsertReviewResultDto>;
 }

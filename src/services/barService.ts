@@ -1,6 +1,7 @@
 import type { BarDto } from "@/domain/dtos/BarDto";
 import type { BarDetailDto } from "@/domain/dtos/BarDetailDto";
 import type { RateBarResultDto } from "@/domain/dtos/RateBarResultDto";
+import type { UpsertReviewResultDto } from "@/domain/dtos/UpsertReviewResultDto";
 import type { ReviewDto } from "@/domain/dtos/ReviewDto";
 import type {
   BarListFilters,
@@ -20,6 +21,12 @@ export type BarService = {
     userId: string,
     input: { rating: number },
   ) => Promise<RateBarResultDto | null>;
+
+  submitReview: (
+    slug: string,
+    userId: string,
+    input: { rating: number; comment: string },
+  ) => Promise<UpsertReviewResultDto | null>;
 };
 
 /**
@@ -62,6 +69,17 @@ export const createBarService = (repo: IBarRepository): BarService => ({
     return {
       averageRating: result.averageRating,
     };
+  },
+
+  submitReview: async (
+    slug: string,
+    userId: string,
+    input: { rating: number; comment: string },
+  ) => {
+    const bar = await repo.findBySlug(slug);
+    if (!bar) return null;
+
+    return repo.upsertReview(bar.id, userId, input.rating, input.comment);
   },
 });
 
