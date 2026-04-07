@@ -9,6 +9,7 @@ import { BAR_CATEGORY_LABELS } from "@/domain/constants";
 
 /**
  * ISR revalidation window for the Map page.
+ * @returns Revalidation window in seconds.
  */
 export const revalidate = 3600;
 
@@ -70,7 +71,14 @@ const buildMapHref = (filters: {
 };
 
 /**
- * Interactive map page.
+ * Renders the interactive map page with server-side filtering.
+ *
+ * Reads `area` and `category` from the query string, fetches approved bars from
+ * the service layer, and renders an interactive Leaflet map (client-only).
+ *
+ * @param props - Next.js page props.
+ * @param props.searchParams - Query string parameters provided by Next.js.
+ * @returns The Map page UI.
  */
 export default async function MapPage({ searchParams }: MapPageProps) {
   const resolvedSearchParams = searchParams ? await searchParams : {};

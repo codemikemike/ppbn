@@ -6,6 +6,7 @@ import type { BarCategory } from "@/domain/dtos/BarCategory";
 
 /**
  * ISR revalidation window for map data.
+ * @returns Revalidation window in seconds.
  */
 export const revalidate = 3600;
 
@@ -40,6 +41,9 @@ const isBarCategory = (value: string): value is BarCategory =>
 /**
  * GET /api/map
  * Returns approved bars with coordinates for map rendering.
+ *
+ * @param request - Next.js request object.
+ * @returns A JSON response containing bars with coordinates.
  */
 export async function GET(request: Request) {
   try {

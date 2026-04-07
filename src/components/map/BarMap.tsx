@@ -21,6 +21,10 @@ const DEFAULT_ZOOM = 13;
 
 /**
  * Interactive bar map using Leaflet.
+ *
+ * @param props - Component props.
+ * @param props.bars - Bars to render (bars without coordinates are ignored).
+ * @returns A Leaflet map with bar markers.
  */
 export default function BarMap({ bars }: BarMapProps) {
   useEffect(() => {
