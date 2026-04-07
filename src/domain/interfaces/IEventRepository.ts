@@ -11,16 +11,26 @@ export type UpcomingEventFilters = {
 /**
  * Event repository contract.
  */
-export type IEventRepository = {
+export interface IEventRepository {
   /**
    * Lists upcoming/current approved events.
    * @param filters Optional filters.
    */
-  findUpcoming: (filters: UpcomingEventFilters) => Promise<EventDto[]>;
+  findUpcoming(filters: UpcomingEventFilters): Promise<EventDto[]>;
 
   /**
    * Finds a single upcoming/current approved event by id.
    * @param id Event id.
    */
-  findUpcomingById: (id: string) => Promise<EventDto | null>;
-};
+  findUpcomingById(id: string): Promise<EventDto | null>;
+
+  /**
+   * Lists publicly visible events that overlap the given time range.
+   *
+   * Range is treated as [start, end) in terms of boundaries.
+   *
+   * @param start Inclusive start.
+   * @param end Exclusive end.
+   */
+  findVisibleOverlappingRange(start: Date, end: Date): Promise<EventDto[]>;
+}

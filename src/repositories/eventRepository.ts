@@ -46,6 +46,10 @@ const buildUpcomingWhere = (now: Date, filters: UpcomingEventFilters) => {
   return {
     isApproved: true,
     deletedAt: null,
+    bar: {
+      isApproved: true,
+      deletedAt: null,
+    },
     ...(normalized.type ? { eventType: normalized.type } : {}),
     ...(normalized.barId ? { barId: normalized.barId } : {}),
     OR: [
@@ -65,7 +69,7 @@ const buildUpcomingWhere = (now: Date, filters: UpcomingEventFilters) => {
 };
 
 /**
- * Event repository backed by Prisma.
+ * Event repository implementation backed by Prisma.
  */
 export const eventRepository: IEventRepository = {
   /**
@@ -116,7 +120,52 @@ export const eventRepository: IEventRepository = {
     });
 
     if (!event) return null;
-
     return toEventDto(event);
+  },
+
+  /**
+   * Lists publicly visible events that overlap the given time range.
+   * @param start Inclusive start.
+   * @param end Exclusive end.
+   */
+  async findVisibleOverlappingRange(
+    start: Date,
+    end: Date,
+  ): Promise<EventDto[]> {
+    const events = await db.event.findMany({
+      where: {
+        isApproved: true,
+        deletedAt: null,
+        bar: {
+          isApproved: true,
+          deletedAt: null,
+        },
+        startTime: {
+          lt: end,
+        },
+        OR: [
+          {
+            endTime: null,
+          },
+          {
+            endTime: {
+              gte: start,
+            },
+          },
+        ],
+      },
+      include: {
+        bar: {
+          select: {
+            id: true,
+            name: true,
+            slug: true,
+          },
+        },
+      },
+      orderBy: [{ startTime: "asc" }],
+    });
+
+    return events.map((event) => toEventDto(event));
   },
 };
