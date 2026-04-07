@@ -57,13 +57,12 @@ const toBarReviewSummaryDto = (review: {
   },
 });
 
-const computeAverageRating = (
-  reviews: Array<{ rating: number }>,
-): number | null => {
-  if (reviews.length === 0) return null;
-
-  const sum = reviews.reduce((acc, review) => acc + review.rating, 0);
-  return sum / reviews.length;
+const computeAverageRatingFromAggregate = (aggregate: {
+  _avg: { rating: number | null };
+  _count: { _all: number };
+}): number | null => {
+  if (aggregate._count._all === 0) return null;
+  return aggregate._avg.rating ?? null;
 };
 
 const parseTimeToMinutes = (value: string): number | null => {
@@ -187,9 +186,23 @@ export const barRepository: IBarRepository = {
 
     if (!bar) return null;
 
+    const ratingAggregate = await db.review.aggregate({
+      where: {
+        barId: bar.id,
+        isApproved: true,
+        deletedAt: null,
+      },
+      _avg: {
+        rating: true,
+      },
+      _count: {
+        _all: true,
+      },
+    });
+
     const images = bar.images.map(toBarImageSummaryDto);
     const reviews = bar.reviews.map(toBarReviewSummaryDto);
-    const averageRating = computeAverageRating(bar.reviews);
+    const averageRating = computeAverageRatingFromAggregate(ratingAggregate);
 
     const primaryImageUrl = images.length > 0 ? images[0].url : null;
 
@@ -205,6 +218,57 @@ export const barRepository: IBarRepository = {
       averageRating,
       images,
       reviews,
+    };
+  },
+
+  /**
+   * Upserts a user's rating for a bar and returns the updated average rating.
+   * @param barId Bar id.
+   * @param userId User id.
+   * @param rating Rating in range 1-5.
+   */
+  async upsertRating(barId: string, userId: string, rating: number) {
+    await db.review.upsert({
+      where: {
+        barId_userId: {
+          barId,
+          userId,
+        },
+      },
+      update: {
+        rating,
+        isApproved: true,
+        updatedBy: userId,
+      },
+      create: {
+        barId,
+        userId,
+        rating,
+        title: null,
+        content: "",
+        isApproved: true,
+        createdBy: userId,
+        updatedBy: userId,
+      },
+    });
+
+    const ratingAggregate = await db.review.aggregate({
+      where: {
+        barId,
+        isApproved: true,
+        deletedAt: null,
+      },
+      _avg: {
+        rating: true,
+      },
+      _count: {
+        _all: true,
+      },
+    });
+
+    const averageRating = computeAverageRatingFromAggregate(ratingAggregate);
+    return {
+      averageRating: averageRating ?? rating,
     };
   },
 

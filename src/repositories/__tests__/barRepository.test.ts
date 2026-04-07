@@ -7,6 +7,9 @@ vi.mock("@/lib/db", () => {
         findFirst: vi.fn(),
         findMany: vi.fn(),
       },
+      review: {
+        aggregate: vi.fn(),
+      },
     },
   };
 });
@@ -18,6 +21,11 @@ const getFindFirstMock = async (): Promise<FindFirstMock> => {
   return db.bar.findFirst as unknown as FindFirstMock;
 };
 
+const getReviewAggregateMock = async (): Promise<FindFirstMock> => {
+  const { db } = await import("@/lib/db");
+  return db.review.aggregate as unknown as FindFirstMock;
+};
+
 let barRepository: typeof import("../barRepository").barRepository;
 
 beforeAll(async () => {
@@ -27,6 +35,7 @@ beforeAll(async () => {
 describe("barRepository.findBySlug", () => {
   it("returns bar with mapped reviews", async () => {
     const findFirst = await getFindFirstMock();
+    const aggregate = await getReviewAggregateMock();
 
     const now = new Date("2026-04-07T12:00:00.000Z");
 
@@ -54,6 +63,14 @@ describe("barRepository.findBySlug", () => {
           user: { id: "user_1", name: "Alice" },
         },
       ],
+    });
+
+    aggregate.mockResolvedValue({
+      _avg: { rating: 4.5 },
+      _count: { _all: 2 },
+      _sum: { rating: 9 },
+      _min: { rating: 4 },
+      _max: { rating: 5 },
     });
 
     const bar = await barRepository.findBySlug("rose-bar");

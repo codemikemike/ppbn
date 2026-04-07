@@ -1,10 +1,17 @@
 import { notFound } from "next/navigation";
+import { getServerSession } from "next-auth";
 import { Star } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { barService } from "@/services/barService";
 import { ImageWithFallback } from "@/components/shared/ImageWithFallback";
+import StarRating from "@/components/bars/StarRating";
+import { authOptions } from "@/lib/auth";
 
+/**
+ * ISR revalidation window for the bar detail page.
+ * @returns Revalidation window in seconds.
+ */
 export const revalidate = 3600;
 
 type PageProps = {
@@ -23,7 +30,7 @@ const formatReviewDate = (date: Date) =>
     day: "2-digit",
   }).format(date);
 
-const StarRating = ({ rating }: { rating: number }) => {
+const StaticStarRating = ({ rating }: { rating: number }) => {
   const clamped = Math.max(0, Math.min(5, Math.round(rating)));
 
   return (
@@ -45,11 +52,27 @@ const StarRating = ({ rating }: { rating: number }) => {
   );
 };
 
+/**
+ * Bar detail page.
+ *
+ * @param props - Next.js page props.
+ * @param props.params - Route params containing the bar slug.
+ * @returns The bar detail UI.
+ */
 export default async function BarDetailPage({ params }: PageProps) {
   const { slug } = await params;
 
   const bar = await barService.getApprovedBarBySlug(slug);
   if (!bar) notFound();
+
+  const session = await getServerSession(authOptions);
+  const currentUserRating = session
+    ? (bar.reviews.find((review) => review.user.id === session.user.id)
+        ?.rating ?? null)
+    : null;
+  const visibleReviews = bar.reviews.filter(
+    (review) => review.content.trim().length > 0,
+  );
 
   return (
     <main className="mx-auto w-full max-w-3xl px-4 py-10">
@@ -93,11 +116,25 @@ export default async function BarDetailPage({ params }: PageProps) {
                 <dd className="flex items-center gap-2">
                   <span>{formatAverageRating(bar.averageRating)}</span>
                   {bar.averageRating !== null ? (
-                    <StarRating rating={bar.averageRating} />
+                    <StaticStarRating rating={bar.averageRating} />
                   ) : null}
                 </dd>
               </div>
             </dl>
+
+            <section className="mt-6" aria-label="Rate this bar">
+              <h2 className="text-sm font-medium">Your rating</h2>
+              {session ? (
+                <StarRating
+                  barSlug={bar.slug}
+                  initialRating={currentUserRating}
+                />
+              ) : (
+                <p className="mt-2 text-sm text-muted-foreground">
+                  Login to rate this bar
+                </p>
+              )}
+            </section>
 
             {bar.description ? (
               <div className="mt-6">
@@ -118,7 +155,7 @@ export default async function BarDetailPage({ params }: PageProps) {
             <div className="flex flex-wrap items-center justify-between gap-3">
               <p className="text-sm text-muted-foreground">
                 Total reviews:{" "}
-                <span className="font-medium">{bar.reviews.length}</span>
+                <span className="font-medium">{visibleReviews.length}</span>
               </p>
               <div className="flex items-center gap-2">
                 <span className="text-sm text-muted-foreground">Average</span>
@@ -128,16 +165,16 @@ export default async function BarDetailPage({ params }: PageProps) {
                     : bar.averageRating.toFixed(1)}
                 </span>
                 {bar.averageRating !== null ? (
-                  <StarRating rating={bar.averageRating} />
+                  <StaticStarRating rating={bar.averageRating} />
                 ) : null}
               </div>
             </div>
 
-            {bar.reviews.length === 0 ? (
+            {visibleReviews.length === 0 ? (
               <p className="text-sm text-muted-foreground">No reviews yet.</p>
             ) : (
               <div className="mt-4 space-y-4">
-                {bar.reviews.map((review) => (
+                {visibleReviews.map((review) => (
                   <article key={review.id} className="rounded-md border p-4">
                     <header className="flex items-start justify-between gap-4">
                       <div className="space-y-1">
@@ -152,7 +189,7 @@ export default async function BarDetailPage({ params }: PageProps) {
                         <span className="text-sm font-medium">
                           {review.rating}/5
                         </span>
-                        <StarRating rating={review.rating} />
+                        <StaticStarRating rating={review.rating} />
                       </div>
                     </header>
 
