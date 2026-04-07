@@ -1,5 +1,6 @@
 import type { UserDto } from "../dtos/UserDto";
 import type { CreateUserData } from "../dtos/CreateUserData";
+import type { PasswordResetUserDto } from "../dtos/PasswordResetUserDto";
 
 /**
  * Contract for user persistence and lookup.
@@ -34,4 +35,29 @@ export interface IUserRepository {
   findByEmailWithPassword(
     email: string,
   ): Promise<(UserDto & { password: string }) | null>;
+
+  /**
+   * Stores a password reset token hash and expiry for an active (not soft-deleted) user.
+   *
+   * The token value should be a hash (not the raw token) to reduce impact if the database is leaked.
+   *
+   * @param userId - User id.
+   * @param tokenHash - Password reset token hash.
+   * @param expiry - Expiry timestamp.
+   */
+  setResetToken(userId: string, tokenHash: string, expiry: Date): Promise<void>;
+
+  /**
+   * Finds a user by password reset token hash.
+   * @param tokenHash - Password reset token hash.
+   * @returns The password reset lookup DTO, or null if not found.
+   */
+  findByResetToken(tokenHash: string): Promise<PasswordResetUserDto | null>;
+
+  /**
+   * Updates a user's password hash and invalidates any stored reset token.
+   * @param userId - User id.
+   * @param passwordHash - New password hash.
+   */
+  updatePassword(userId: string, passwordHash: string): Promise<void>;
 }

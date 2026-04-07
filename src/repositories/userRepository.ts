@@ -2,6 +2,7 @@ import { db } from "@/lib/db";
 import type { IUserRepository } from "@/domain/interfaces/IUserRepository";
 import type { UserDto } from "@/domain/dtos/UserDto";
 import type { CreateUserData } from "@/domain/dtos/CreateUserData";
+import type { PasswordResetUserDto } from "@/domain/dtos/PasswordResetUserDto";
 import type { User } from "@/generated/prisma";
 
 function toUserDto(user: User): UserDto {
@@ -14,6 +15,16 @@ function toUserDto(user: User): UserDto {
     image: user.image,
     createdAt: user.createdAt,
     updatedAt: user.updatedAt,
+  };
+}
+
+function toPasswordResetUserDto(user: {
+  id: string;
+  passwordResetExpiry: Date | null;
+}): PasswordResetUserDto {
+  return {
+    id: user.id,
+    passwordResetExpiry: user.passwordResetExpiry,
   };
 }
 
@@ -91,5 +102,67 @@ export const userRepository: IUserRepository = {
       ...toUserDto(user),
       password: user.password,
     };
+  },
+
+  /**
+   * Stores a password reset token hash and expiry for an active (not soft-deleted) user.
+   * @param userId - User id.
+   * @param tokenHash - Password reset token hash.
+   * @param expiry - Expiry timestamp.
+   */
+  async setResetToken(userId: string, tokenHash: string, expiry: Date) {
+    await db.user.updateMany({
+      where: {
+        id: userId,
+        deletedAt: null,
+      },
+      data: {
+        passwordResetToken: tokenHash,
+        passwordResetExpiry: expiry,
+      },
+    });
+  },
+
+  /**
+   * Finds a user by password reset token hash.
+   * @param tokenHash - Password reset token hash.
+   * @returns The password reset lookup DTO, or null if not found.
+   */
+  async findByResetToken(
+    tokenHash: string,
+  ): Promise<PasswordResetUserDto | null> {
+    const user = await db.user.findFirst({
+      where: {
+        passwordResetToken: tokenHash,
+        deletedAt: null,
+      },
+      select: {
+        id: true,
+        passwordResetExpiry: true,
+      },
+    });
+
+    if (!user) return null;
+
+    return toPasswordResetUserDto(user);
+  },
+
+  /**
+   * Updates a user's password hash and invalidates any stored reset token.
+   * @param userId - User id.
+   * @param passwordHash - New password hash.
+   */
+  async updatePassword(userId: string, passwordHash: string): Promise<void> {
+    await db.user.updateMany({
+      where: {
+        id: userId,
+        deletedAt: null,
+      },
+      data: {
+        password: passwordHash,
+        passwordResetToken: null,
+        passwordResetExpiry: null,
+      },
+    });
   },
 };
