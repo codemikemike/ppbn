@@ -273,6 +273,61 @@ export const barRepository: IBarRepository = {
   },
 
   /**
+   * Upserts a user's review for a bar.
+   * @param barId Bar id.
+   * @param userId User id.
+   * @param rating Rating in range 1-5.
+   * @param comment Review comment content.
+   */
+  async upsertReview(
+    barId: string,
+    userId: string,
+    rating: number,
+    comment: string,
+  ) {
+    const review = await db.review.upsert({
+      where: {
+        barId_userId: {
+          barId,
+          userId,
+        },
+      },
+      update: {
+        rating,
+        content: comment,
+        isApproved: true,
+        deletedAt: null,
+        updatedBy: userId,
+      },
+      create: {
+        barId,
+        userId,
+        rating,
+        title: null,
+        content: comment,
+        isApproved: true,
+        createdBy: userId,
+        updatedBy: userId,
+      },
+      select: {
+        id: true,
+        rating: true,
+        content: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    return {
+      id: review.id,
+      rating: review.rating,
+      comment: review.content,
+      createdAt: review.createdAt,
+      updatedAt: review.updatedAt,
+    };
+  },
+
+  /**
    * Lists approved, non-deleted featured bars.
    */
   async findFeaturedBars(): Promise<BarDto[]> {

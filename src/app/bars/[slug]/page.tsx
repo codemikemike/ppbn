@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { barService } from "@/services/barService";
 import { ImageWithFallback } from "@/components/shared/ImageWithFallback";
 import StarRating from "@/components/bars/StarRating";
+import ReviewForm from "@/components/bars/ReviewForm";
 import { authOptions } from "@/lib/auth";
 
 /**
@@ -200,6 +201,8 @@ export default async function BarDetailPage({ params }: PageProps) {
                 ))}
               </div>
             )}
+
+            <ReviewForm barSlug={bar.slug} />
           </CardContent>
         </Card>
       </div>
