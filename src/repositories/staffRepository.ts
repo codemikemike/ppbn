@@ -223,4 +223,32 @@ export const staffRepository: IStaffRepository = {
 
     return rating?.rating ?? null;
   },
+
+  /**
+   * Creates a tip record for a staff profile.
+   * @param staffProfileId Staff profile id.
+   * @param userId User id.
+   * @param amount Tip amount in USD.
+   * @param message Optional message.
+   */
+  async createTip(
+    staffProfileId: string,
+    userId: string,
+    amount: number,
+    message?: string,
+  ): Promise<string> {
+    const tip = await db.staffTip.create({
+      data: {
+        staffProfileId,
+        userId,
+        amount,
+        message,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    return tip.id;
+  },
 };
