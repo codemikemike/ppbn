@@ -152,4 +152,75 @@ export const staffRepository: IStaffRepository = {
       ratings,
     };
   },
+
+  /**
+   * Upserts a user's rating for a staff profile.
+   * @param staffProfileId Staff profile id.
+   * @param userId User id.
+   * @param rating Rating value (1-5).
+   */
+  async upsertRating(staffProfileId: string, userId: string, rating: number) {
+    await db.staffRating.upsert({
+      where: {
+        staffProfileId_userId: {
+          staffProfileId,
+          userId,
+        },
+      },
+      update: {
+        rating,
+      },
+      create: {
+        staffProfileId,
+        userId,
+        rating,
+      },
+      select: {
+        id: true,
+      },
+    });
+
+    const aggregate = await db.staffRating.aggregate({
+      where: {
+        staffProfileId,
+      },
+      _avg: {
+        rating: true,
+      },
+      _count: {
+        _all: true,
+      },
+    });
+
+    const averageRating = aggregate._avg.rating ?? rating;
+
+    return {
+      averageRating,
+      userRating: rating,
+    };
+  },
+
+  /**
+   * Gets the user's existing rating for a staff profile.
+   * @param staffProfileId Staff profile id.
+   * @param userId User id.
+   */
+  async getUserRating(
+    staffProfileId: string,
+    userId: string,
+  ): Promise<number | null> {
+    const rating = await db.staffRating.findUnique({
+      where: {
+        staffProfileId_userId: {
+          staffProfileId,
+          userId,
+        },
+      },
+      select: {
+        rating: true,
+      },
+    });
+
+    return rating?.rating ?? null;
+  },
 };

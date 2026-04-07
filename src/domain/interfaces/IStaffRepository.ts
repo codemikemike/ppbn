@@ -2,6 +2,7 @@ import type {
   StaffProfileDetailDto,
   StaffProfileDto,
 } from "../dtos/StaffProfileDto";
+import type { RateStaffResultDto } from "../dtos/RateStaffResultDto";
 
 /**
  * Approved staff profile filters.
@@ -27,4 +28,26 @@ export type IStaffRepository = {
    * @param id Staff profile id.
    */
   findApprovedById: (id: string) => Promise<StaffProfileDetailDto | null>;
+
+  /**
+   * Upserts the user's rating for the staff profile and returns rating metadata.
+   * @param staffProfileId Staff profile id.
+   * @param userId User id.
+   * @param rating Rating value (1-5).
+   */
+  upsertRating: (
+    staffProfileId: string,
+    userId: string,
+    rating: number,
+  ) => Promise<RateStaffResultDto>;
+
+  /**
+   * Gets the user's existing rating for a staff profile.
+   * @param staffProfileId Staff profile id.
+   * @param userId User id.
+   */
+  getUserRating: (
+    staffProfileId: string,
+    userId: string,
+  ) => Promise<number | null>;
 };
