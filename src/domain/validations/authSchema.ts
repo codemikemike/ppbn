@@ -1,17 +1,19 @@
 import { z } from "zod";
 
+const emailSchema = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .email("Please enter a valid email address")
+  .max(255, "Email must be less than 255 characters");
+
 export const registerSchema = z.object({
   name: z
     .string()
     .min(1, "Name is required")
     .max(100, "Name must be less than 100 characters")
     .trim(),
-  email: z
-    .string()
-    .email("Please enter a valid email address")
-    .max(255, "Email must be less than 255 characters")
-    .toLowerCase()
-    .trim(),
+  email: emailSchema,
   password: z
     .string()
     .min(8, "Password must be at least 8 characters")
@@ -24,12 +26,7 @@ export const registerSchema = z.object({
 export type RegisterInput = z.infer<typeof registerSchema>;
 
 export const loginSchema = z.object({
-  email: z
-    .string()
-    .email("Please enter a valid email address")
-    .max(255, "Email must be less than 255 characters")
-    .toLowerCase()
-    .trim(),
+  email: emailSchema,
   password: z.string().min(1, "Password is required").max(72),
 });
 

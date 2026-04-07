@@ -49,7 +49,7 @@ function LoginForm() {
         password,
       });
 
-      if (!result || result.error) {
+      if (!result || !result.ok) {
         setError("Invalid email or password");
         return;
       }

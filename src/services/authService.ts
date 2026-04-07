@@ -94,13 +94,20 @@ export class AuthService {
       throw new ValidationError("Validation failed", issues);
     }
 
-    const user = await this.userRepository.findByEmailWithPassword(email);
+    const { email: validatedEmail, password: validatedPassword } =
+      validationResult.data;
+
+    const user =
+      await this.userRepository.findByEmailWithPassword(validatedEmail);
 
     if (!user) {
       throw new UnauthorizedError("Invalid email or password");
     }
 
-    const isPasswordValid = await this.verifyPassword(password, user.password);
+    const isPasswordValid = await this.verifyPassword(
+      validatedPassword,
+      user.password,
+    );
 
     if (!isPasswordValid) {
       throw new UnauthorizedError("Invalid email or password");
