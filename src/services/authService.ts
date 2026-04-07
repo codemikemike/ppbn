@@ -1,14 +1,22 @@
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import type { IUserRepository } from "@/domain/interfaces/IUserRepository";
+import type { ChangePasswordDto } from "@/domain/dtos/ChangePasswordDto";
+import type { DashboardStatsDto } from "@/domain/dtos/DashboardStatsDto";
 import type { RegisterDto } from "@/domain/dtos/RegisterDto";
+import type { UpdateUserProfileDto } from "@/domain/dtos/UpdateUserProfileDto";
 import type { UserDto } from "@/domain/dtos/UserDto";
+import type { UserReviewListItemDto } from "@/domain/dtos/UserReviewListItemDto";
 import {
   forgotPasswordSchema,
   loginSchema,
   registerSchema,
   resetPasswordSchema,
 } from "@/domain/validations/authSchema";
+import {
+  changePasswordSchema,
+  updateUserProfileSchema,
+} from "@/domain/validations/userSchema";
 import {
   EmailExistsError,
   ValidationError,
@@ -216,6 +224,108 @@ export class AuthService {
       validationResult.data.password,
     );
     await this.userRepository.updatePassword(user.id, hashedPassword);
+  }
+
+  /**
+   * Returns dashboard stats counts for the given user.
+   * @param userId - User id.
+   */
+  async getDashboardStats(userId: string): Promise<DashboardStatsDto> {
+    return this.userRepository.getDashboardStats(userId);
+  }
+
+  /**
+   * Lists the current user's reviews.
+   * @param userId - User id.
+   */
+  async listMyReviews(userId: string): Promise<UserReviewListItemDto[]> {
+    return this.userRepository.listMyReviews(userId);
+  }
+
+  /**
+   * Updates the current user's profile.
+   * @param userId - User id.
+   * @param dto - Profile update input.
+   * @returns Updated user.
+   */
+  async updateUserProfile(
+    userId: string,
+    dto: UpdateUserProfileDto,
+  ): Promise<UserDto> {
+    const validationResult = updateUserProfileSchema.safeParse(dto);
+
+    if (!validationResult.success) {
+      const issues = validationResult.error.issues.map((err) => ({
+        field: err.path.join("."),
+        message: err.message,
+      }));
+      throw new ValidationError("Validation failed", issues);
+    }
+
+    const updatedUser = await this.userRepository.updateProfile(userId, {
+      name: validationResult.data.name,
+    });
+
+    await auditLogService
+      .logAction("Updated", "User", userId, userId, {
+        newValues: {
+          name: updatedUser.name,
+        },
+      })
+      .catch((err) => {
+        console.error("Failed to log profile update:", err);
+      });
+
+    return updatedUser;
+  }
+
+  /**
+   * Changes the current user's password.
+   * @param userId - User id.
+   * @param dto - Password change input.
+   */
+  async changePassword(userId: string, dto: ChangePasswordDto): Promise<void> {
+    const validationResult = changePasswordSchema.safeParse(dto);
+
+    if (!validationResult.success) {
+      const issues = validationResult.error.issues.map((err) => ({
+        field: err.path.join("."),
+        message: err.message,
+      }));
+      throw new ValidationError("Validation failed", issues);
+    }
+
+    const userWithPassword =
+      await this.userRepository.findByIdWithPassword(userId);
+
+    if (!userWithPassword) {
+      throw new UnauthorizedError("Authentication required");
+    }
+
+    const isPasswordValid = await this.verifyPassword(
+      validationResult.data.currentPassword,
+      userWithPassword.password,
+    );
+
+    if (!isPasswordValid) {
+      throw new UnauthorizedError("Invalid current password");
+    }
+
+    const hashedPassword = await this.hashPassword(
+      validationResult.data.newPassword,
+    );
+
+    await this.userRepository.updatePassword(userId, hashedPassword);
+
+    await auditLogService
+      .logAction("Updated", "User", userId, userId, {
+        newValues: {
+          password: "[REDACTED]",
+        },
+      })
+      .catch((err) => {
+        console.error("Failed to log password change:", err);
+      });
   }
 
   private async hashPassword(password: string): Promise<string> {

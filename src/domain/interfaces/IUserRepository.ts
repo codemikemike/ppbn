@@ -1,6 +1,9 @@
 import type { UserDto } from "../dtos/UserDto";
 import type { CreateUserData } from "../dtos/CreateUserData";
 import type { PasswordResetUserDto } from "../dtos/PasswordResetUserDto";
+import type { DashboardStatsDto } from "../dtos/DashboardStatsDto";
+import type { UserReviewListItemDto } from "../dtos/UserReviewListItemDto";
+import type { UpdateUserProfileDto } from "../dtos/UpdateUserProfileDto";
 
 /**
  * Contract for user persistence and lookup.
@@ -35,6 +38,35 @@ export interface IUserRepository {
   findByEmailWithPassword(
     email: string,
   ): Promise<(UserDto & { password: string }) | null>;
+
+  /**
+   * Finds an active user by id and includes password hash.
+   * @param id - User id.
+   * @returns The user DTO plus password hash, or null if not found.
+   */
+  findByIdWithPassword(
+    id: string,
+  ): Promise<(UserDto & { password: string }) | null>;
+
+  /**
+   * Updates the user's profile.
+   * @param userId - User id.
+   * @param data - Profile fields to update.
+   * @returns Updated user DTO.
+   */
+  updateProfile(userId: string, data: UpdateUserProfileDto): Promise<UserDto>;
+
+  /**
+   * Returns dashboard stats counts for the given user.
+   * @param userId - User id.
+   */
+  getDashboardStats(userId: string): Promise<DashboardStatsDto>;
+
+  /**
+   * Lists the current user's reviews with minimal bar information.
+   * @param userId - User id.
+   */
+  listMyReviews(userId: string): Promise<UserReviewListItemDto[]>;
 
   /**
    * Stores a password reset token hash and expiry for an active (not soft-deleted) user.
