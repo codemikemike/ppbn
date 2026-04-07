@@ -1,8 +1,8 @@
-import dynamic from "next/dynamic";
 import Link from "next/link";
 
 import { barService } from "@/services/barService";
 import { Button } from "@/components/ui/button";
+import MapClient from "@/components/map/MapClient";
 import type { BarArea } from "@/domain/dtos/BarArea";
 import type { BarCategory } from "@/domain/dtos/BarCategory";
 import { BAR_CATEGORY_LABELS } from "@/domain/constants";
@@ -15,15 +15,6 @@ export const revalidate = 3600;
 type MapPageProps = {
   searchParams?: Promise<{ area?: string; category?: string }>;
 };
-
-const BarMap = dynamic(() => import("@/components/map/BarMap"), {
-  ssr: false,
-  loading: () => (
-    <div className="mt-6 rounded-md border p-6 text-sm text-muted-foreground">
-      Loading map...
-    </div>
-  ),
-});
 
 const AREA_OPTIONS: ReadonlyArray<{ value: BarArea | null; label: string }> = [
   { value: null, label: "All" },
@@ -170,7 +161,7 @@ export default async function MapPage({ searchParams }: MapPageProps) {
           No bars with coordinates found for the selected filters.
         </p>
       ) : (
-        <BarMap bars={barsWithCoordinates} />
+        <MapClient bars={barsWithCoordinates} />
       )}
     </main>
   );
