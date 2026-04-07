@@ -11,9 +11,24 @@ import {
 import { userRepository } from "@/repositories/userRepository";
 import { auditLogService } from "./auditLogService";
 
+/**
+ * Authentication use cases (registration and credentials-based login).
+ */
 export class AuthService {
+  /**
+   * Creates a new AuthService.
+   * @param userRepository - User repository used for persistence and lookup.
+   * @returns A new AuthService instance.
+   */
   constructor(private userRepository: IUserRepository) {}
 
+  /**
+   * Registers a new user after validating input and hashing the password.
+   * @param dto - Registration input.
+   * @returns The created user as a UserDto.
+   * @throws ValidationError if the registration input is invalid.
+   * @throws EmailExistsError if the email is already registered.
+   */
   async registerUser(dto: RegisterDto): Promise<UserDto> {
     const validationResult = registerSchema.safeParse(dto);
 
@@ -60,6 +75,14 @@ export class AuthService {
     return user;
   }
 
+  /**
+   * Authenticates a user by verifying credentials.
+   * @param email - User email.
+   * @param password - User password.
+   * @returns The authenticated user as a UserDto.
+   * @throws ValidationError if email/password input is invalid.
+   * @throws UnauthorizedError if credentials are invalid or the user cannot log in.
+   */
   async authenticateUser(email: string, password: string): Promise<UserDto> {
     const validationResult = loginSchema.safeParse({ email, password });
 
@@ -114,4 +137,8 @@ export class AuthService {
   }
 }
 
+/**
+ * Default AuthService singleton.
+ * @returns A shared AuthService instance.
+ */
 export const authService = new AuthService(userRepository);

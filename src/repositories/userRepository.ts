@@ -17,7 +17,16 @@ function toUserDto(user: User): UserDto {
   };
 }
 
+/**
+ * User repository backed by Prisma.
+ * @returns An IUserRepository implementation.
+ */
 export const userRepository: IUserRepository = {
+  /**
+   * Finds an active (not soft-deleted) user by email.
+   * @param email - User email.
+   * @returns The user DTO, or null if not found or soft-deleted.
+   */
   async findByEmail(email: string): Promise<UserDto | null> {
     const user = await db.user.findUnique({
       where: { email: email.toLowerCase() },
@@ -28,6 +37,11 @@ export const userRepository: IUserRepository = {
     return toUserDto(user);
   },
 
+  /**
+   * Finds an active (not soft-deleted) user by id.
+   * @param id - User id.
+   * @returns The user DTO, or null if not found.
+   */
   async findById(id: string): Promise<UserDto | null> {
     const user = await db.user.findUnique({
       where: {
@@ -41,6 +55,11 @@ export const userRepository: IUserRepository = {
     return toUserDto(user);
   },
 
+  /**
+   * Creates a new user.
+   * @param data - User creation data.
+   * @returns The created user DTO.
+   */
   async create(data: CreateUserData): Promise<UserDto> {
     const user = await db.user.create({
       data: {
@@ -54,6 +73,11 @@ export const userRepository: IUserRepository = {
     return toUserDto(user);
   },
 
+  /**
+   * Finds an active user by email and includes their password hash for authentication.
+   * @param email - User email.
+   * @returns The user DTO plus password hash, or null if not found or soft-deleted.
+   */
   async findByEmailWithPassword(
     email: string,
   ): Promise<(UserDto & { password: string }) | null> {

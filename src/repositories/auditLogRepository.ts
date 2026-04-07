@@ -21,7 +21,16 @@ function toAuditLogDto(auditLog: AuditLog): AuditLogDto {
   };
 }
 
+/**
+ * Audit log repository backed by Prisma.
+ * @returns An IAuditLogRepository implementation.
+ */
 export const auditLogRepository: IAuditLogRepository = {
+  /**
+   * Creates a new audit log record.
+   * @param data - Audit log creation data.
+   * @returns The created audit log DTO.
+   */
   async create(data: CreateAuditLogData): Promise<AuditLogDto> {
     const auditLog = await db.auditLog.create({
       data: {
@@ -43,6 +52,12 @@ export const auditLogRepository: IAuditLogRepository = {
     return toAuditLogDto(auditLog);
   },
 
+  /**
+   * Finds audit logs by entity type and entity id.
+   * @param entityType - Entity type (e.g. "User", "Bar").
+   * @param entityId - Entity id.
+   * @returns Audit log DTOs ordered by newest first.
+   */
   async findByEntityId(
     entityType: string,
     entityId: string,
@@ -60,6 +75,11 @@ export const auditLogRepository: IAuditLogRepository = {
     return auditLogs.map(toAuditLogDto);
   },
 
+  /**
+   * Finds audit logs for a specific user.
+   * @param userId - User id.
+   * @returns Audit log DTOs ordered by newest first.
+   */
   async findByUserId(userId: string): Promise<AuditLogDto[]> {
     const auditLogs = await db.auditLog.findMany({
       where: {
@@ -73,6 +93,11 @@ export const auditLogRepository: IAuditLogRepository = {
     return auditLogs.map(toAuditLogDto);
   },
 
+  /**
+   * Finds audit logs for a specific action.
+   * @param action - Audit action.
+   * @returns Audit log DTOs ordered by newest first.
+   */
   async findByAction(action: AuditAction): Promise<AuditLogDto[]> {
     const auditLogs = await db.auditLog.findMany({
       where: {
@@ -86,6 +111,11 @@ export const auditLogRepository: IAuditLogRepository = {
     return auditLogs.map(toAuditLogDto);
   },
 
+  /**
+   * Returns the most recent audit logs.
+   * @param limit - Maximum number of records to return.
+   * @returns Audit log DTOs ordered by newest first.
+   */
   async findRecent(limit: number): Promise<AuditLogDto[]> {
     const auditLogs = await db.auditLog.findMany({
       orderBy: {

@@ -18,6 +18,10 @@ import {
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle, Eye, EyeOff } from "lucide-react";
 
+/**
+ * Login form component that reads query params and performs credentials sign-in.
+ * @returns The login form UI.
+ */
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -154,6 +158,10 @@ function LoginForm() {
   );
 }
 
+/**
+ * Login page entrypoint wrapped in a Suspense boundary for useSearchParams().
+ * @returns The login page.
+ */
 export default function LoginPage() {
   return (
     <Suspense fallback={<div>Loading...</div>}>
