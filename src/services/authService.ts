@@ -1,8 +1,14 @@
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
 import type { IUserRepository } from "@/domain/interfaces/IUserRepository";
 import type { RegisterDto } from "@/domain/dtos/RegisterDto";
 import type { UserDto } from "@/domain/dtos/UserDto";
-import { loginSchema, registerSchema } from "@/domain/validations/authSchema";
+import {
+  forgotPasswordSchema,
+  loginSchema,
+  registerSchema,
+  resetPasswordSchema,
+} from "@/domain/validations/authSchema";
 import {
   EmailExistsError,
   ValidationError,
@@ -10,6 +16,8 @@ import {
 } from "@/domain/errors/DomainErrors";
 import { userRepository } from "@/repositories/userRepository";
 import { auditLogService } from "./auditLogService";
+
+const RESET_TOKEN_TTL_MS = 60 * 60 * 1000;
 
 /**
  * Authentication use cases (registration and credentials-based login).
@@ -125,6 +133,91 @@ export class AuthService {
     return userWithoutPassword;
   }
 
+  /**
+   * Requests a password reset link for the given email.
+   *
+   * This operation is designed to be safe against account enumeration: callers should return a
+   * generic success response regardless of whether the email exists.
+   *
+   * @param email - Email address to send a reset link to.
+   * @returns Nothing.
+   * @throws ValidationError if the email is invalid.
+   */
+  async requestPasswordReset(email: string): Promise<void> {
+    const validationResult = forgotPasswordSchema.safeParse({ email });
+
+    if (!validationResult.success) {
+      const issues = validationResult.error.issues.map((err) => ({
+        field: err.path.join("."),
+        message: err.message,
+      }));
+      throw new ValidationError("Validation failed", issues);
+    }
+
+    const validatedEmail = validationResult.data.email;
+    const user = await this.userRepository.findByEmail(validatedEmail);
+    if (!user) return;
+
+    const rawToken = this.generateResetToken();
+    const tokenHash = this.hashResetToken(rawToken);
+    const expiry = new Date(Date.now() + RESET_TOKEN_TTL_MS);
+
+    await this.userRepository.setResetToken(user.id, tokenHash, expiry);
+
+    const baseUrl = process.env.NEXTAUTH_URL ?? "http://localhost:3000";
+    const resetLink = `${baseUrl}/reset-password?token=${encodeURIComponent(
+      rawToken,
+    )}`;
+
+    // Email delivery is out of scope for now. Log the link for development.
+    console.info(
+      `[Auth] Password reset link for ${validatedEmail}: ${resetLink}`,
+    );
+  }
+
+  /**
+   * Resets a user's password given a reset token.
+   *
+   * @param token - Raw reset token.
+   * @param newPassword - New password (plain text).
+   * @returns Nothing.
+   * @throws ValidationError if token/password input is invalid or the token is invalid/expired.
+   */
+  async resetPassword(token: string, newPassword: string): Promise<void> {
+    const validationResult = resetPasswordSchema.safeParse({
+      token,
+      password: newPassword,
+    });
+
+    if (!validationResult.success) {
+      const issues = validationResult.error.issues.map((err) => ({
+        field: err.path.join("."),
+        message: err.message,
+      }));
+      throw new ValidationError("Validation failed", issues);
+    }
+
+    const tokenHash = this.hashResetToken(validationResult.data.token);
+    const user = await this.userRepository.findByResetToken(tokenHash);
+
+    if (!user || !user.passwordResetExpiry) {
+      throw new ValidationError("Invalid or expired token", [
+        { field: "token", message: "Invalid or expired token" },
+      ]);
+    }
+
+    if (user.passwordResetExpiry.getTime() < Date.now()) {
+      throw new ValidationError("Invalid or expired token", [
+        { field: "token", message: "Invalid or expired token" },
+      ]);
+    }
+
+    const hashedPassword = await this.hashPassword(
+      validationResult.data.password,
+    );
+    await this.userRepository.updatePassword(user.id, hashedPassword);
+  }
+
   private async hashPassword(password: string): Promise<string> {
     return bcrypt.hash(password, 10);
   }
@@ -134,6 +227,14 @@ export class AuthService {
     hash: string,
   ): Promise<boolean> {
     return bcrypt.compare(password, hash);
+  }
+
+  private generateResetToken(): string {
+    return crypto.randomBytes(32).toString("hex");
+  }
+
+  private hashResetToken(token: string): string {
+    return crypto.createHash("sha256").update(token).digest("hex");
   }
 }
 
