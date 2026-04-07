@@ -4,6 +4,7 @@ import type {
   PublishedBlogPostFilters,
 } from "@/domain/interfaces/IBlogRepository";
 import { blogRepository } from "@/repositories/blogRepository";
+import { NotFoundError } from "@/domain/errors/DomainErrors";
 
 export type BlogService = {
   /**
@@ -12,6 +13,13 @@ export type BlogService = {
    * @param limit Page size.
    */
   listPublishedPosts: (page?: number, limit?: number) => Promise<BlogPostDto[]>;
+
+  /**
+   * Gets a single published post by slug.
+   * @param slug Post slug.
+   * @throws NotFoundError when the post does not exist or is not published.
+   */
+  getPublishedPostBySlug: (slug: string) => Promise<BlogPostDto>;
 };
 
 const DEFAULT_PAGE = 1;
@@ -46,6 +54,13 @@ export const createBlogService = (repo: IBlogRepository): BlogService => ({
   listPublishedPosts: async (page?: number, limit?: number) => {
     const filters = normalizePublishedPostFilters(page, limit);
     return repo.findAllPublished(filters);
+  },
+  getPublishedPostBySlug: async (slug: string) => {
+    const post = await repo.findBySlug(slug);
+    if (!post) {
+      throw new NotFoundError("Blog post not found");
+    }
+    return post;
   },
 });
 

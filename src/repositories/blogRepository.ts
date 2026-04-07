@@ -6,6 +6,15 @@ import type {
 } from "@/domain/interfaces/IBlogRepository";
 import type { BlogPost } from "@/generated/prisma";
 
+const parseTags = (rawTags: string | null): string[] => {
+  if (!rawTags) return [];
+
+  return rawTags
+    .split(",")
+    .map((t) => t.trim())
+    .filter((t) => t.length > 0);
+};
+
 const toBlogPostDto = (
   post: BlogPost & {
     author: {
@@ -19,6 +28,9 @@ const toBlogPostDto = (
     );
   }
 
+  const tags = parseTags(post.tags ?? null);
+  const category = tags.length > 0 ? tags[0] : null;
+
   return {
     id: post.id,
     slug: post.slug,
@@ -27,7 +39,8 @@ const toBlogPostDto = (
     content: post.content,
     authorName: post.author.name,
     publishedAt: post.publishedAt,
-    category: post.tags ?? null,
+    category,
+    tags,
     imageUrl: post.coverImageUrl ?? null,
   };
 };
@@ -66,5 +79,33 @@ export const blogRepository: IBlogRepository = {
     });
 
     return posts.map((post) => toBlogPostDto(post));
+  },
+
+  /**
+   * Finds a published post by slug.
+   * @param slug Post slug.
+   */
+  async findBySlug(slug: string): Promise<BlogPostDto | null> {
+    const post = await db.blogPost.findFirst({
+      where: {
+        slug,
+        isPublished: true,
+        publishedAt: {
+          not: null,
+        },
+        deletedAt: null,
+      },
+      include: {
+        author: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
+
+    if (!post) return null;
+
+    return toBlogPostDto(post);
   },
 };
