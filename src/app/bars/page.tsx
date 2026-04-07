@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { X } from "lucide-react";
+import { Star, X } from "lucide-react";
 
 import { barService } from "@/services/barService";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -70,6 +70,35 @@ const buildBarsHref = (filters: {
   return query ? `/bars?${query}` : "/bars";
 };
 
+const StaticStars = ({ rating }: { rating: number | null }) => {
+  if (rating === null) {
+    return <span className="text-xs text-muted-foreground">No ratings</span>;
+  }
+
+  const clamped = Math.max(0, Math.min(5, Math.round(rating)));
+
+  return (
+    <div className="flex items-center gap-1" aria-label={`${rating} out of 5`}>
+      {Array.from({ length: 5 }, (_, index) => {
+        const filled = index < clamped;
+        return (
+          <Star
+            key={index}
+            className={
+              filled
+                ? "h-4 w-4 fill-[var(--accent-gold)] text-[var(--accent-gold)]"
+                : "h-4 w-4 text-muted-foreground"
+            }
+          />
+        );
+      })}
+      <span className="ml-1 text-xs text-muted-foreground">
+        {rating.toFixed(1)}
+      </span>
+    </div>
+  );
+};
+
 /**
  * Bars listing page with URL-driven area/category filters.
  */
@@ -97,8 +126,13 @@ export default async function BarsPage({ searchParams }: BarsPageProps) {
   });
 
   return (
-    <main className="mx-auto w-full max-w-3xl px-4 py-10">
-      <h1 className="text-2xl font-semibold">Bars</h1>
+    <main className="ppbn-page mx-auto w-full max-w-6xl px-4 py-10">
+      <header className="space-y-2">
+        <h1 className="text-2xl font-semibold">Bars</h1>
+        <p className="text-sm text-muted-foreground">
+          Find your next spot in Phnom Penh.
+        </p>
+      </header>
 
       <search className="mt-6 block" aria-label="Search bars">
         <form role="search" method="get" className="flex items-center gap-2">
@@ -110,6 +144,7 @@ export default async function BarsPage({ searchParams }: BarsPageProps) {
             name="search"
             placeholder="Search bars..."
             defaultValue={activeSearch ?? ""}
+            className="ppbn-input"
           />
           {activeArea ? (
             <input type="hidden" name="area" value={activeArea} />
@@ -134,28 +169,26 @@ export default async function BarsPage({ searchParams }: BarsPageProps) {
         </form>
       </search>
 
-      <nav aria-label="Bar filters" className="mt-6 space-y-4">
+      <nav aria-label="Bar filters" className="mt-6 space-y-5">
         <div>
           <h2 className="text-sm font-medium">Area</h2>
           <div className="mt-2 flex flex-wrap gap-2">
             {AREA_OPTIONS.map((option) => {
               const isActive = option.value === activeArea;
               return (
-                <Button
+                <Link
                   key={option.label}
-                  variant={isActive ? "secondary" : "outline"}
-                  asChild
+                  href={buildBarsHref({
+                    area: option.value,
+                    category: activeCategory,
+                    search: activeSearch,
+                  })}
+                  className={
+                    isActive ? "ppbn-chip ppbn-chip-active" : "ppbn-chip"
+                  }
                 >
-                  <Link
-                    href={buildBarsHref({
-                      area: option.value,
-                      category: activeCategory,
-                      search: activeSearch,
-                    })}
-                  >
-                    {option.label}
-                  </Link>
-                </Button>
+                  {option.label}
+                </Link>
               );
             })}
           </div>
@@ -167,21 +200,19 @@ export default async function BarsPage({ searchParams }: BarsPageProps) {
             {CATEGORY_OPTIONS.map((option) => {
               const isActive = option.value === activeCategory;
               return (
-                <Button
+                <Link
                   key={option.label}
-                  variant={isActive ? "secondary" : "outline"}
-                  asChild
+                  href={buildBarsHref({
+                    area: activeArea,
+                    category: option.value,
+                    search: activeSearch,
+                  })}
+                  className={
+                    isActive ? "ppbn-chip ppbn-chip-active" : "ppbn-chip"
+                  }
                 >
-                  <Link
-                    href={buildBarsHref({
-                      area: activeArea,
-                      category: option.value,
-                      search: activeSearch,
-                    })}
-                  >
-                    {option.label}
-                  </Link>
-                </Button>
+                  {option.label}
+                </Link>
               );
             })}
           </div>
@@ -193,31 +224,28 @@ export default async function BarsPage({ searchParams }: BarsPageProps) {
           No bars available yet.
         </p>
       ) : (
-        <div className="mt-6 grid gap-4">
+        <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {bars.map((bar) => (
             <Link key={bar.id} href={`/bars/${bar.slug}`} className="block">
-              <Card className="transition-shadow hover:shadow-md">
+              <Card className="ppbn-card overflow-hidden">
+                <div className="relative h-40 ppbn-hero-bg" aria-hidden="true">
+                  {bar.isFeatured ? (
+                    <div className="absolute left-3 top-3">
+                      <span className="ppbn-badge-featured">FEATURED</span>
+                    </div>
+                  ) : null}
+                </div>
+
                 <CardHeader>
-                  <CardTitle className="flex items-center justify-between gap-4">
-                    <span>{bar.name}</span>
-                    {bar.isFeatured ? (
-                      <span className="text-xs text-muted-foreground">
-                        Featured
-                      </span>
-                    ) : null}
+                  <CardTitle className="flex items-start justify-between gap-3">
+                    <span className="min-w-0 truncate">{bar.name}</span>
+                    <span className="ppbn-pill">{bar.category}</span>
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <dl className="grid grid-cols-2 gap-3 text-sm">
-                    <div>
-                      <dt className="text-muted-foreground">Area</dt>
-                      <dd>{bar.area}</dd>
-                    </div>
-                    <div>
-                      <dt className="text-muted-foreground">Category</dt>
-                      <dd>{bar.category}</dd>
-                    </div>
-                  </dl>
+
+                <CardContent className="space-y-3">
+                  <p className="text-xs text-muted-foreground">{bar.area}</p>
+                  <StaticStars rating={bar.averageRating} />
                 </CardContent>
               </Card>
             </Link>

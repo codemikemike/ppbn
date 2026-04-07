@@ -95,7 +95,7 @@ export default function StarRating({
             <button
               key={ratingValue}
               type="button"
-              className="rounded-sm p-1 disabled:cursor-not-allowed"
+              className="ppbn-button rounded-sm p-1 disabled:cursor-not-allowed"
               aria-label={`Rate ${ratingValue} out of ${STAR_COUNT}`}
               aria-pressed={ratingValue === (selectedRating ?? 0)}
               disabled={isSaving}
@@ -108,7 +108,7 @@ export default function StarRating({
               <Star
                 className={
                   filled
-                    ? "h-5 w-5 fill-primary text-primary"
+                    ? "h-5 w-5 fill-[var(--accent-gold)] text-[var(--accent-gold)] transition-transform"
                     : "h-5 w-5 text-muted-foreground"
                 }
               />
