@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { barService } from "@/services/barService";
 import { ImageWithFallback } from "@/components/shared/ImageWithFallback";
 import StarRating from "@/components/bars/StarRating";
+import FavoriteButton from "@/components/bars/FavoriteButton";
 import ReviewForm from "@/components/bars/ReviewForm";
 import { authOptions } from "@/lib/auth";
 
@@ -67,6 +68,11 @@ export default async function BarDetailPage({ params }: PageProps) {
   if (!bar) notFound();
 
   const session = await getServerSession(authOptions);
+  const isFavorited = session
+    ? (await barService.getUserFavorites(session.user.id)).some(
+        (favorite) => favorite.id === bar.id,
+      )
+    : false;
   const currentUserRating = session
     ? (bar.reviews.find((review) => review.user.id === session.user.id)
         ?.rating ?? null)
@@ -96,7 +102,15 @@ export default async function BarDetailPage({ params }: PageProps) {
 
         <Card>
           <CardHeader>
-            <CardTitle>{bar.name}</CardTitle>
+            <CardTitle>
+              <div className="flex items-center justify-between gap-2">
+                <span>{bar.name}</span>
+                <FavoriteButton
+                  barSlug={bar.slug}
+                  initialIsFavorited={isFavorited}
+                />
+              </div>
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <dl className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
