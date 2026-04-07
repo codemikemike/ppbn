@@ -65,6 +65,8 @@ async function main() {
       openingHours: "5PM - 2AM",
       isFeatured: true,
       isApproved: true,
+      latitude: 11.5625,
+      longitude: 104.9168,
     },
     {
       slug: "secrets-bar",
@@ -76,6 +78,8 @@ async function main() {
       openingHours: "6PM - 3AM",
       isFeatured: true,
       isApproved: true,
+      latitude: 11.558,
+      longitude: 104.929,
     },
     {
       slug: "honeypot-bar",
@@ -87,6 +91,8 @@ async function main() {
       openingHours: "7PM - 2AM",
       isFeatured: false,
       isApproved: true,
+      latitude: 11.5624,
+      longitude: 104.9167,
     },
     {
       slug: "angry-birds-bar",
@@ -98,6 +104,8 @@ async function main() {
       openingHours: "6PM - 2AM",
       isFeatured: false,
       isApproved: true,
+      latitude: 11.5623,
+      longitude: 104.9166,
     },
     {
       slug: "martini-bar",
@@ -109,6 +117,8 @@ async function main() {
       openingHours: "4PM - 1AM",
       isFeatured: true,
       isApproved: true,
+      latitude: 11.5637,
+      longitude: 104.9282,
     },
     {
       slug: "alaska-bar",
@@ -120,6 +130,8 @@ async function main() {
       openingHours: "6PM - 2AM",
       isFeatured: false,
       isApproved: true,
+      latitude: 11.5622,
+      longitude: 104.9165,
     },
   ];
 
@@ -135,6 +147,8 @@ async function main() {
           category: bar.category,
           isFeatured: bar.isFeatured,
           isApproved: bar.isApproved,
+          latitude: bar.latitude,
+          longitude: bar.longitude,
           deletedAt: null,
           ownerId: barOwnerUser.id,
         },
@@ -147,6 +161,8 @@ async function main() {
           category: bar.category,
           isFeatured: bar.isFeatured,
           isApproved: bar.isApproved,
+          latitude: bar.latitude,
+          longitude: bar.longitude,
           ownerId: barOwnerUser.id,
         },
       }),

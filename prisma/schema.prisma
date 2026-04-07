@@ -121,8 +121,8 @@ model Bar {
   priceRange    Int?        @default(2)
   isFeatured    Boolean     @default(false)
   isApproved    Boolean     @default(false)
-  latitude      Decimal?    @db.Decimal(10, 8)
-  longitude     Decimal?    @db.Decimal(11, 8)
+  latitude      Float?
+  longitude     Float?
   ownerId       String
   owner         User        @relation(fields: [ownerId], references: [id], onDelete: Cascade)
 

@@ -20,6 +20,8 @@ const toBarDto = (bar: Bar): BarDto => ({
   area: bar.area as unknown as BarArea,
   category: bar.category as unknown as BarCategory,
   isFeatured: bar.isFeatured,
+  ...(bar.latitude !== null ? { latitude: bar.latitude } : {}),
+  ...(bar.longitude !== null ? { longitude: bar.longitude } : {}),
 });
 
 const toBarImageSummaryDto = (image: {
@@ -266,6 +268,8 @@ export const barRepository: IBarRepository = {
         area: true,
         category: true,
         isFeatured: true,
+        latitude: true,
+        longitude: true,
         openingHours: true,
       },
       orderBy: [{ isFeatured: "desc" }, { name: "asc" }],
