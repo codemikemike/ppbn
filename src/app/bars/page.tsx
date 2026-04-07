@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { barService } from "@/services/barService";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
@@ -17,30 +19,32 @@ export default async function BarsPage() {
       ) : (
         <div className="mt-6 grid gap-4">
           {bars.map((bar) => (
-            <Card key={bar.id}>
-              <CardHeader>
-                <CardTitle className="flex items-center justify-between gap-4">
-                  <span>{bar.name}</span>
-                  {bar.isFeatured ? (
-                    <span className="text-xs text-muted-foreground">
-                      Featured
-                    </span>
-                  ) : null}
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <dl className="grid grid-cols-2 gap-3 text-sm">
-                  <div>
-                    <dt className="text-muted-foreground">Area</dt>
-                    <dd>{bar.area}</dd>
-                  </div>
-                  <div>
-                    <dt className="text-muted-foreground">Category</dt>
-                    <dd>{bar.category}</dd>
-                  </div>
-                </dl>
-              </CardContent>
-            </Card>
+            <Link key={bar.id} href={`/bars/${bar.slug}`} className="block">
+              <Card className="transition-shadow hover:shadow-md">
+                <CardHeader>
+                  <CardTitle className="flex items-center justify-between gap-4">
+                    <span>{bar.name}</span>
+                    {bar.isFeatured ? (
+                      <span className="text-xs text-muted-foreground">
+                        Featured
+                      </span>
+                    ) : null}
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <dl className="grid grid-cols-2 gap-3 text-sm">
+                    <div>
+                      <dt className="text-muted-foreground">Area</dt>
+                      <dd>{bar.area}</dd>
+                    </div>
+                    <div>
+                      <dt className="text-muted-foreground">Category</dt>
+                      <dd>{bar.category}</dd>
+                    </div>
+                  </dl>
+                </CardContent>
+              </Card>
+            </Link>
           ))}
         </div>
       )}
