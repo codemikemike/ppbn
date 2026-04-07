@@ -1,16 +1,26 @@
 import type { BarDto } from "@/domain/dtos/BarDto";
 import type { BarDetailDto } from "@/domain/dtos/BarDetailDto";
-import type { IBarRepository } from "@/domain/interfaces/IBarRepository";
+import type {
+  BarListFilters,
+  IBarRepository,
+} from "@/domain/interfaces/IBarRepository";
 import { barRepository } from "@/repositories/barRepository";
 
 export type BarService = {
-  listApprovedBars: () => Promise<BarDto[]>;
+  listApprovedBars: (filters?: BarListFilters) => Promise<BarDto[]>;
   getApprovedBarBySlug: (slug: string) => Promise<BarDetailDto | null>;
 };
 
+/**
+ * Creates a bar service using the given repository.
+ * @param repo Repository implementation.
+ */
 export const createBarService = (repo: IBarRepository): BarService => ({
-  listApprovedBars: async () => repo.findApproved(),
+  listApprovedBars: async (filters?: BarListFilters) => repo.findAll(filters),
   getApprovedBarBySlug: async (slug: string) => repo.findBySlug(slug),
 });
 
+/**
+ * Default bar service.
+ */
 export const barService = createBarService(barRepository);

@@ -7,7 +7,10 @@ import type {
   BarImageSummaryDto,
   BarReviewSummaryDto,
 } from "@/domain/dtos/BarDetailDto";
-import type { IBarRepository } from "@/domain/interfaces/IBarRepository";
+import type {
+  BarListFilters,
+  IBarRepository,
+} from "@/domain/interfaces/IBarRepository";
 import type { Bar } from "@/generated/prisma";
 
 const toBarDto = (bar: Bar): BarDto => ({
@@ -61,12 +64,21 @@ const computeAverageRating = (
   return sum / reviews.length;
 };
 
+/**
+ * Bar repository implementation backed by Prisma.
+ */
 export const barRepository: IBarRepository = {
-  async findApproved(): Promise<BarDto[]> {
+  /**
+   * Returns all publicly visible bars, optionally filtered by area/category.
+   * @param filters Optional filter criteria.
+   */
+  async findAll(filters?: BarListFilters): Promise<BarDto[]> {
     const bars = await db.bar.findMany({
       where: {
         isApproved: true,
         deletedAt: null,
+        ...(filters?.area ? { area: filters.area } : {}),
+        ...(filters?.category ? { category: filters.category } : {}),
       },
       orderBy: [{ isFeatured: "desc" }, { name: "asc" }],
     });
