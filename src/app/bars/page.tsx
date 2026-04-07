@@ -1,8 +1,10 @@
 import Link from "next/link";
+import { X } from "lucide-react";
 
 import { barService } from "@/services/barService";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { BAR_CATEGORY_LABELS } from "@/domain/constants";
 import type { BarArea } from "@/domain/dtos/BarArea";
 import type { BarCategory } from "@/domain/dtos/BarCategory";
@@ -10,7 +12,7 @@ import type { BarCategory } from "@/domain/dtos/BarCategory";
 export const revalidate = 3600;
 
 type BarsPageProps = {
-  searchParams?: Promise<{ area?: string; category?: string }>;
+  searchParams?: Promise<{ area?: string; category?: string; search?: string }>;
 };
 
 const AREA_OPTIONS: ReadonlyArray<{ value: BarArea | null; label: string }> = [
@@ -57,10 +59,12 @@ const isBarCategory = (value: string): value is BarCategory =>
 const buildBarsHref = (filters: {
   area: BarArea | null;
   category: BarCategory | null;
+  search: string | null;
 }) => {
   const params = new URLSearchParams();
   if (filters.area) params.set("area", filters.area);
   if (filters.category) params.set("category", filters.category);
+  if (filters.search) params.set("search", filters.search);
 
   const query = params.toString();
   return query ? `/bars?${query}` : "/bars";
@@ -82,14 +86,53 @@ export default async function BarsPage({ searchParams }: BarsPageProps) {
       ? resolvedSearchParams.category
       : null;
 
+  const activeSearch = resolvedSearchParams.search?.trim()
+    ? resolvedSearchParams.search.trim()
+    : null;
+
   const bars = await barService.listApprovedBars({
     ...(activeArea ? { area: activeArea } : {}),
     ...(activeCategory ? { category: activeCategory } : {}),
+    ...(activeSearch ? { search: activeSearch } : {}),
   });
 
   return (
     <main className="mx-auto w-full max-w-3xl px-4 py-10">
       <h1 className="text-2xl font-semibold">Bars</h1>
+
+      <search className="mt-6 block" aria-label="Search bars">
+        <form role="search" method="get" className="flex items-center gap-2">
+          <label htmlFor="bar-search" className="sr-only">
+            Search bars
+          </label>
+          <Input
+            id="bar-search"
+            name="search"
+            placeholder="Search bars..."
+            defaultValue={activeSearch ?? ""}
+          />
+          {activeArea ? (
+            <input type="hidden" name="area" value={activeArea} />
+          ) : null}
+          {activeCategory ? (
+            <input type="hidden" name="category" value={activeCategory} />
+          ) : null}
+          {activeSearch ? (
+            <Button variant="ghost" size="icon" asChild>
+              <Link
+                href={buildBarsHref({
+                  area: activeArea,
+                  category: activeCategory,
+                  search: null,
+                })}
+                aria-label="Clear search"
+              >
+                <X />
+              </Link>
+            </Button>
+          ) : null}
+        </form>
+      </search>
 
       <nav aria-label="Bar filters" className="mt-6 space-y-4">
         <div>
@@ -107,6 +150,7 @@ export default async function BarsPage({ searchParams }: BarsPageProps) {
                     href={buildBarsHref({
                       area: option.value,
                       category: activeCategory,
+                      search: activeSearch,
                     })}
                   >
                     {option.label}
@@ -132,6 +176,7 @@ export default async function BarsPage({ searchParams }: BarsPageProps) {
                     href={buildBarsHref({
                       area: activeArea,
                       category: option.value,
+                      search: activeSearch,
                     })}
                   >
                     {option.label}

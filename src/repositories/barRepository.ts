@@ -79,6 +79,22 @@ export const barRepository: IBarRepository = {
         deletedAt: null,
         ...(filters?.area ? { area: filters.area } : {}),
         ...(filters?.category ? { category: filters.category } : {}),
+        ...(filters?.search
+          ? {
+              OR: [
+                {
+                  name: {
+                    contains: filters.search,
+                  },
+                },
+                {
+                  description: {
+                    contains: filters.search,
+                  },
+                },
+              ],
+            }
+          : {}),
       },
       orderBy: [{ isFeatured: "desc" }, { name: "asc" }],
     });
