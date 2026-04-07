@@ -2,6 +2,7 @@ import type { BarDto } from "../dtos/BarDto";
 import type { BarDetailDto } from "../dtos/BarDetailDto";
 import type { BarArea } from "../dtos/BarArea";
 import type { BarCategory } from "../dtos/BarCategory";
+import type { RateBarResultDto } from "../dtos/RateBarResultDto";
 
 /**
  * Optional filters for listing publicly visible bars.
@@ -48,4 +49,17 @@ export interface IBarRepository {
    * @param dateTime Date/time to evaluate against `openingHours`.
    */
   findOpenBarsAt(dateTime: Date): Promise<BarDto[]>;
+
+  /**
+   * Upserts a user's rating for a bar.
+   *
+   * @param barId Bar id.
+   * @param userId User id.
+   * @param rating Rating in range 1-5.
+   */
+  upsertRating(
+    barId: string,
+    userId: string,
+    rating: number,
+  ): Promise<RateBarResultDto>;
 }
