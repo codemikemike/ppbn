@@ -1,3 +1,7 @@
+import type { CreateBlogPostData } from "../dtos/CreateBlogPostData";
+import type { BlogPostDto } from "../dtos/BlogPostDto";
+import type { CreateBarData } from "../dtos/CreateBarData";
+import type { BarDto } from "../dtos/BarDto";
 import type { AdminBarListItemDto } from "../dtos/AdminBarListItemDto";
 import type { AdminBlogPostListItemDto } from "../dtos/AdminBlogPostListItemDto";
 import type { AdminOverviewStatsDto } from "../dtos/AdminOverviewStatsDto";
@@ -5,11 +9,35 @@ import type { AdminReviewListItemDto } from "../dtos/AdminReviewListItemDto";
 import type { AdminStaffProfileListItemDto } from "../dtos/AdminStaffProfileListItemDto";
 import type { AdminUserListItemDto } from "../dtos/AdminUserListItemDto";
 import type { UserRole } from "../dtos/UserRole";
+import type { CreateEventData } from "../dtos/CreateEventData";
+import type { EventDto } from "../dtos/EventDto";
+import type { CreateStaffProfileData } from "../dtos/CreateStaffProfileData";
+import type { StaffProfileDto } from "../dtos/StaffProfileDto";
 
 /**
  * Admin repository contract.
  */
 export interface IAdminRepository {
+  /**
+   * Creates a new blog post as admin.
+   * @param adminId - Admin performing the action.
+   * @param data - Blog post creation data.
+   */
+  createBlogPost(adminId: string, data: CreateBlogPostData): Promise<BlogPostDto>;
+  /**
+   * Creates a new bar as admin.
+   * @param adminId - Admin performing the action.
+   * @param data - Bar creation data.
+   */
+  createBar(adminId: string, data: CreateBarData): Promise<BarDto>;
+  /**
+   * Creates a new event as admin.
+   */
+  createEvent(adminId: string, data: CreateEventData): Promise<EventDto>;
+  /**
+   * Creates a new staff profile as admin.
+   */
+  createStaffProfile(adminId: string, data: CreateStaffProfileData): Promise<StaffProfileDto>;
   /**
    * Gets admin dashboard overview stats.
    */

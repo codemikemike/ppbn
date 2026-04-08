@@ -80,116 +80,37 @@ const buildMapHref = (filters: {
  * @returns The Map page UI.
  */
 export default async function MapPage({ searchParams }: MapPageProps) {
-  const resolvedSearchParams = searchParams ? await searchParams : {};
-
-  const activeArea =
-    resolvedSearchParams.area && isBarArea(resolvedSearchParams.area)
-      ? resolvedSearchParams.area
-      : null;
-  const activeCategory =
-    resolvedSearchParams.category &&
-    isBarCategory(resolvedSearchParams.category)
-      ? resolvedSearchParams.category
-      : null;
-
-  const bars = await barService.listApprovedBars({
-    ...(activeArea ? { area: activeArea } : {}),
-    ...(activeCategory ? { category: activeCategory } : {}),
-  });
-
-  // const barsWithCoordinates = bars.filter(
-  //   (bar) =>
-  //     typeof bar.latitude === "number" && typeof bar.longitude === "number",
-  // );
-
   return (
     <main className="ppbn-page mx-auto w-full max-w-7xl px-4 py-10 lg:px-8">
-      <header className="ppbn-hero-frame space-y-4 rounded-[2rem] p-6 sm:p-8">
-        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-(--accent-gold)">
-          Map
-        </p>
-        <h1 className="font-display text-gradient-red text-4xl font-black uppercase tracking-[-0.08em] sm:text-5xl">
-          Nightlife Map
+      <header className="ppbn-hero-frame space-y-4 rounded-[2rem] p-6 sm:p-8 text-center">
+        <h1 className="font-display text-gradient-red text-5xl font-black uppercase tracking-[-0.08em] sm:text-6xl mb-2">
+          Phnom Penh Bar Map
         </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Explore Phnom Penh nightlife bars by location.
+        <p className="mt-2 text-lg text-muted-foreground">
+          Explore every nightlife bar and venue on the city map.
         </p>
       </header>
-
-      <nav aria-label="Map filters" className="mt-6 space-y-4">
-        <div>
-          <h2 className="text-sm font-medium">Area</h2>
-          <div className="mt-2 flex flex-wrap gap-2">
-            {AREA_OPTIONS.map((option) => {
-              const isActive = option.value === activeArea;
-              return (
-                <Button
-                  key={option.label}
-                  variant={isActive ? "secondary" : "outline"}
-                  asChild
-                >
-                  <Link
-                    href={buildMapHref({
-                      area: option.value,
-                      category: activeCategory,
-                    })}
-                  >
-                    {option.label}
-                  </Link>
-                </Button>
-              );
-            })}
-          </div>
-        </div>
-
-        <div>
-          <h2 className="text-sm font-medium">Category</h2>
-          <div className="mt-2 flex flex-wrap gap-2">
-            {CATEGORY_OPTIONS.map((option) => {
-              const isActive = option.value === activeCategory;
-              return (
-                <Button
-                  key={option.label}
-                  variant={isActive ? "secondary" : "outline"}
-                  asChild
-                >
-                  <Link
-                    href={buildMapHref({
-                      area: activeArea,
-                      category: option.value,
-                    })}
-                  >
-                    {option.label}
-                  </Link>
-                </Button>
-              );
-            })}
-          </div>
-        </div>
-      </nav>
-
-      <section className="mt-6 space-y-6">
-        <div className="glass-card overflow-hidden rounded-[2rem] border border-border/70">
+      <section className="mt-10 flex flex-col items-center">
+        <div className="glass-card rounded-2xl overflow-hidden border border-border/70 w-full" style={{ maxWidth: 1200 }}>
           <iframe
-            src="https://www.google.com/maps/d/u/0/embed?mid=1w7V0tge2Rmy76hPrtH3k-wsWfGUF9Hk&ehbc=2E312F"
+            src={`https://www.google.com/maps/d/u/0/embed?mid=1w7V0tge2Rmy76hPrtH3k-wsWfGUF9Hk&ehbc=2E312F`}
             width="100%"
-            height="600"
-            style={{ border: 0, borderRadius: "8px" }}
+            height="650"
+            style={{ border: 0, borderRadius: '8px', width: '100%' }}
             allowFullScreen
             loading="lazy"
-            title="Phnom Penh Nightlife Map"
+            referrerPolicy="no-referrer-when-downgrade"
+            title="Phnom Penh Bar Map"
           />
         </div>
-        <div className="flex justify-end">
-          <a
-            href="https://www.google.com/maps/d/u/0/viewer?mid=1w7V0tge2Rmy76hPrtH3k-wsWfGUF9Hk&hl=en"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-2 text-sm font-medium text-(--accent-gold) hover:text-white underline"
-          >
-            View Full Map
-          </a>
-        </div>
+        <a
+          href="https://www.google.com/maps/d/u/0/viewer?mid=1w7V0tge2Rmy76hPrtH3k-wsWfGUF9Hk&hl=en"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-6 inline-block rounded-full border-2 border-(--accent-red) px-6 py-2 font-display text-lg text-white transition-all hover:bg-(--accent-red) hover:text-white"
+        >
+          Open in Google Maps
+        </a>
       </section>
     </main>
   );

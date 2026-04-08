@@ -1,4 +1,12 @@
 import type { IAdminRepository } from "@/domain/interfaces/IAdminRepository";
+import type { CreateBarData } from "@/domain/dtos/CreateBarData";
+import type { BarDto } from "@/domain/dtos/BarDto";
+import type { CreateBlogPostData } from "@/domain/dtos/CreateBlogPostData";
+import type { BlogPostDto } from "@/domain/dtos/BlogPostDto";
+import type { CreateEventData } from "@/domain/dtos/CreateEventData";
+import type { EventDto } from "@/domain/dtos/EventDto";
+import type { CreateStaffProfileData } from "@/domain/dtos/CreateStaffProfileData";
+import type { StaffProfileDto } from "@/domain/dtos/StaffProfileDto";
 import type { AdminBarListItemDto } from "@/domain/dtos/AdminBarListItemDto";
 import type { AdminBlogPostListItemDto } from "@/domain/dtos/AdminBlogPostListItemDto";
 import type { AdminOverviewStatsDto } from "@/domain/dtos/AdminOverviewStatsDto";
@@ -18,6 +26,10 @@ import { adminRepository } from "@/repositories/adminRepository";
  * Admin service contract.
  */
 export type AdminService = {
+  createBar: (adminId: string, data: CreateBarData) => Promise<BarDto>;
+  createBlogPost: (adminId: string, data: CreateBlogPostData) => Promise<BlogPostDto>;
+  createEvent: (adminId: string, data: CreateEventData) => Promise<EventDto>;
+  createStaffProfile: (adminId: string, data: CreateStaffProfileData) => Promise<StaffProfileDto>;
   getOverviewStats: () => Promise<AdminOverviewStatsDto>;
 
   listBars: () => Promise<AdminBarListItemDto[]>;
@@ -70,6 +82,9 @@ export type AdminService = {
  * @param repo - Repository implementation.
  */
 export const createAdminService = (repo: IAdminRepository): AdminService => ({
+  createBar: async (adminId, data) => repo.createBar(adminId, data),
+  createBlogPost: async (adminId, data) => repo.createBlogPost(adminId, data),
+  createEvent: async (adminId, data) => repo.createEvent(adminId, data),
   getOverviewStats: async () => repo.getOverviewStats(),
 
   listBars: async () => repo.listBars(),
@@ -187,6 +202,7 @@ export const createAdminService = (repo: IAdminRepository): AdminService => ({
     const ok = await repo.deleteStaffProfile(adminId, staffProfileId);
     if (!ok) throw new NotFoundError("Staff profile not found");
   },
+  createStaffProfile: async (adminId, data) => repo.createStaffProfile(adminId, data),
 });
 
 /**

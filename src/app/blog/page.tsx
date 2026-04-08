@@ -53,9 +53,10 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
       </header>
 
       {posts.length === 0 ? (
-        <p className="mt-6 text-sm text-muted-foreground">
-          No posts published yet.
-        </p>
+        <div className="mt-6 flex flex-col items-center justify-center rounded-xl glass-card p-10 text-center">
+          <p className="text-2xl font-display text-white mb-2">No posts yet</p>
+          <p className="text-sm text-[#888]">Check back soon for nightlife guides and tips.</p>
+        </div>
       ) : (
         <section className="mt-6 space-y-4" aria-label="Published posts">
           {posts.map((post) => {
@@ -65,9 +66,9 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
 
             return (
               <article key={post.id} className="rounded-md">
-                <Card className="ppbn-card glass-card hover:glow-red transition-all rounded-[1.5rem]">
+                <Card className="glass-card hover:glow-red transition-all rounded-[1.5rem]">
                   <CardHeader>
-                    <CardTitle className="font-display text-base text-white">
+                    <CardTitle className="font-display text-white text-xl">
                       <Link
                         href={`/blog/${post.slug}`}
                         className="hover:text-(--accent-gold)"
@@ -77,14 +78,9 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <span className="ppbn-pill mb-3 inline-flex bg-[rgba(204,0,0,0.15)] text-white">
-                      {post.category ?? "Nightlife"}
-                    </span>
-                    <p className="text-sm leading-7 text-muted-foreground">
-                      {excerpt}
-                    </p>
-
-                    <dl className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                    <span className="badge-featured mb-3 inline-block">{post.category ?? "Nightlife"}</span>
+                    <p className="text-sm leading-7 text-[#888] mb-2">{excerpt}</p>
+                    <dl className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
                       <div className="flex gap-1">
                         <dt className="sr-only">Author</dt>
                         <dd>{post.authorName ?? "Anonymous"}</dd>
@@ -95,7 +91,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
                       </div>
                       <div className="flex gap-1">
                         <dt className="sr-only">Category</dt>
-                        <dd>{post.category ?? "—"}</dd>
+                        <dd>{post.category ?? "\u2014"}</dd>
                       </div>
                     </dl>
                   </CardContent>
