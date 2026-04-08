@@ -35,6 +35,7 @@ export const adminRepository: IAdminRepository = {
     const post = await db.blogPost.create({
       data: {
         slug,
+
         title: data.title,
         content: data.content,
         excerpt: data.excerpt || null,
@@ -80,6 +81,7 @@ export const adminRepository: IAdminRepository = {
     const bar = await db.bar.create({
       data: {
         slug,
+
         name: data.name,
         area: data.area,
         category: data.category,
@@ -169,6 +171,7 @@ export const adminRepository: IAdminRepository = {
     const profile = await db.staffProfile.create({
       data: {
         slug,
+
         displayName: data.displayName,
         bio: data.bio || null,
         photoUrl: data.imageUrl || null,
@@ -187,17 +190,14 @@ export const adminRepository: IAdminRepository = {
 
     return {
       id: profile.id,
-      slug: profile.slug,
       displayName: profile.displayName,
       bio: profile.bio,
       photoUrl: profile.photoUrl,
       photoAlt: profile.photoAlt,
       currentBar: profile.currentBar,
       position: profile.position,
-      yearsExperience: profile.yearsExperience ?? null,
-      specialties: profile.specialties,
-      isActive: profile.isActive,
-      isApproved: profile.isApproved,
+      averageRating: null,
+      ratingCount: 0,
     };
   },
   /**
