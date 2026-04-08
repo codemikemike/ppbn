@@ -25,7 +25,8 @@ export async function POST(req: Request) {
   try {
     const staff = await adminService.createStaffProfile(session.user.id, parse.data);
     return NextResponse.json(staff, { status: 201 });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message || "Failed to create staff profile" }, { status: 500 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Failed to create staff profile";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

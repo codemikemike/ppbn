@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -73,8 +72,9 @@ function CreateEventForm() {
         throw new Error(data?.error || "Failed to create event");
       }
       setForm({ ...initialEventFormState, success: "Event created successfully!" });
-    } catch (err: any) {
-      setForm((prev) => ({ ...prev, loading: false, error: err.message || "Unknown error" }));
+    } catch (error: unknown) {
+      const message = error instanceof Error ? error.message : "Unknown error";
+      setForm((prev) => ({ ...prev, loading: false, error: message }));
     }
   };
 

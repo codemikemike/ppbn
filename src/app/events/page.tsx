@@ -13,7 +13,6 @@ import Link from "next/link";
 
 import type { EventType } from "@/domain/dtos/EventDto";
 import { buildCalendar } from "./calendarUtils";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { eventService, parseEventTypeFilter } from "@/services/eventService";
@@ -46,15 +45,9 @@ const formatDate = (date: Date) =>
     day: "2-digit",
   }).format(date);
 
-const formatTime = (date: Date) =>
-  new Intl.DateTimeFormat("en-GB", {
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(date);
-
 const toIso = (date: Date) => date.toISOString();
 
-const normalizeViewMode = (value: string | undefined): ViewMode => {
+const normalizeViewMode = (): ViewMode => {
   // Always default to calendar view
   return "calendar";
 };
@@ -66,13 +59,10 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
 
   const resolvedSearchParams = searchParams ? await searchParams : {};
   const type = parseEventTypeFilter(resolvedSearchParams.type ?? null);
-  const view = normalizeViewMode(resolvedSearchParams.view);
+  const view = normalizeViewMode();
   const events = await eventService.listUpcomingEvents({ type });
   const selectedTypeValue = resolvedSearchParams.type?.trim() || "";
 
-  // Helper for tonight filter
-  const todayIso = new Date().toISOString().slice(0, 10);
-  const eventsTonight = events.filter(e => e.startTime.toISOString().slice(0, 10) === todayIso);
 
   return (
     <main className="ppbn-page mx-auto w-full max-w-7xl px-4 py-10 lg:px-8">

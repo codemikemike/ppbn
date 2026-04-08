@@ -3,7 +3,6 @@ import pino from "pino";
 
 import { db } from "../src/lib/db";
 import { EventType } from "../src/generated/prisma";
-import { v4 as uuidv4 } from "uuid";
 
 const logger = pino({ name: "prisma-seed" });
 

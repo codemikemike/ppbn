@@ -1,7 +1,3 @@
-import Link from "next/link";
-
-import { barService } from "@/services/barService";
-import { Button } from "@/components/ui/button";
 import type { BarArea } from "@/domain/dtos/BarArea";
 import type { BarCategory } from "@/domain/dtos/BarCategory";
 import { BAR_CATEGORY_LABELS } from "@/domain/constants";
@@ -51,24 +47,6 @@ const CATEGORY_VALUES = CATEGORY_OPTIONS.map((option) => option.value).filter(
   (value): value is BarCategory => Boolean(value),
 );
 
-const isBarArea = (value: string): value is BarArea =>
-  (AREA_VALUES as readonly string[]).includes(value);
-
-const isBarCategory = (value: string): value is BarCategory =>
-  (CATEGORY_VALUES as readonly string[]).includes(value);
-
-const buildMapHref = (filters: {
-  area: BarArea | null;
-  category: BarCategory | null;
-}) => {
-  const params = new URLSearchParams();
-  if (filters.area) params.set("area", filters.area);
-  if (filters.category) params.set("category", filters.category);
-
-  const query = params.toString();
-  return query ? `/map?${query}` : "/map";
-};
-
 /**
  * Renders the interactive map page with server-side filtering.
  *
@@ -79,7 +57,7 @@ const buildMapHref = (filters: {
  * @param props.searchParams - Query string parameters provided by Next.js.
  * @returns The Map page UI.
  */
-export default async function MapPage({ searchParams }: MapPageProps) {
+export default async function MapPage({}: MapPageProps) {
   return (
     <main className="ppbn-page mx-auto w-full max-w-7xl px-4 py-10 lg:px-8">
       <header className="ppbn-hero-frame space-y-4 rounded-[2rem] p-6 sm:p-8 text-center">

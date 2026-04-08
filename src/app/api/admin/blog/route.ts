@@ -25,7 +25,8 @@ export async function POST(req: Request) {
   try {
     const post = await adminService.createBlogPost(session.user.id, parse.data);
     return NextResponse.json(post, { status: 201 });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message || "Failed to create blog post" }, { status: 500 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Failed to create blog post";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

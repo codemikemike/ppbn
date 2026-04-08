@@ -25,7 +25,8 @@ export async function POST(req: Request) {
   try {
     const event = await adminService.createEvent(session.user.id, parse.data);
     return NextResponse.json(event, { status: 201 });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message || "Failed to create event" }, { status: 500 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Failed to create event";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

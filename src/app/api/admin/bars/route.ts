@@ -25,7 +25,8 @@ export async function POST(req: Request) {
   try {
     const bar = await adminService.createBar(session.user.id, parse.data);
     return NextResponse.json(bar, { status: 201 });
-  } catch (err: any) {
-    return NextResponse.json({ error: err.message || "Failed to create bar" }, { status: 500 });
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : "Failed to create bar";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
