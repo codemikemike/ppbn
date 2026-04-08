@@ -117,10 +117,10 @@ export default function ResetPasswordClient() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 p-4">
-      <Card className="w-full max-w-md">
+    <div className="ppbn-page min-h-screen flex items-center justify-center bg-[#0a0a0a] p-4">
+      <Card className="glass-card glow-red w-full max-w-md rounded-[1.75rem]">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">
+          <CardTitle className="font-display text-gradient-red text-2xl font-black uppercase tracking-[-0.08em] text-center">
             Reset password
           </CardTitle>
           <CardDescription className="text-center">
@@ -159,10 +159,10 @@ export default function ResetPasswordClient() {
                   setPassword(e.target.value)
                 }
                 disabled={isLoading || !token}
-                className={validationErrors.password ? "border-red-500" : ""}
+                className={`ppbn-input ${validationErrors.password ? "border-[#cc0000]" : ""}`}
               />
               {validationErrors.password ? (
-                <p className="text-sm text-red-500">
+                <p className="text-sm text-[#ff4444]">
                   {validationErrors.password}
                 </p>
               ) : null}
@@ -179,12 +179,10 @@ export default function ResetPasswordClient() {
                   setConfirmPassword(e.target.value)
                 }
                 disabled={isLoading || !token}
-                className={
-                  validationErrors.confirmPassword ? "border-red-500" : ""
-                }
+                className={`ppbn-input ${validationErrors.confirmPassword ? "border-[#cc0000]" : ""}`}
               />
               {validationErrors.confirmPassword ? (
-                <p className="text-sm text-red-500">
+                <p className="text-sm text-[#ff4444]">
                   {validationErrors.confirmPassword}
                 </p>
               ) : null}
@@ -192,7 +190,7 @@ export default function ResetPasswordClient() {
 
             <Button
               type="submit"
-              className="w-full"
+              className="w-full rounded-sm bg-[#cc0000] text-white hover:bg-[#ff0000]"
               disabled={isLoading || !token}
             >
               {isLoading ? "Submitting..." : "Reset password"}
@@ -203,7 +201,7 @@ export default function ResetPasswordClient() {
         <CardFooter className="flex justify-center">
           <Link
             href="/login"
-            className="text-sm text-muted-foreground hover:underline"
+            className="text-sm text-muted-foreground hover:text-white"
           >
             Back to login
           </Link>

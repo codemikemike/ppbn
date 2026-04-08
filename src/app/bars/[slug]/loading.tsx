@@ -9,9 +9,9 @@ export default function BarDetailLoading() {
   return (
     <main className="ppbn-page">
       <section aria-label="Bar hero" className="relative">
-        <div className="ppbn-skeleton h-[320px] w-full" />
+        <div className="ppbn-skeleton h-80 w-full" />
         <div className="mx-auto w-full max-w-6xl px-4">
-          <div className="-mt-10 rounded-2xl border border-border/70 bg-card/90 p-5 shadow-[var(--glow-red)] backdrop-blur-md">
+          <div className="-mt-10 rounded-2xl border border-border/70 bg-card/90 p-5 shadow-(--glow-red) backdrop-blur-md">
             <div className="ppbn-skeleton h-6 w-52" />
             <div className="mt-2 ppbn-skeleton h-4 w-44" />
             <div className="mt-4 flex gap-2">

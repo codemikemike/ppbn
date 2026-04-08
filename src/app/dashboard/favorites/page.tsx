@@ -44,10 +44,12 @@ export default async function FavoritesPage() {
   const favorites = await barService.getUserFavorites(session.user.id);
 
   return (
-    <main className="mx-auto w-full max-w-3xl px-4 py-10">
-      <Card>
+    <main className="ppbn-page mx-auto w-full max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
+      <Card className="glass-card glow-red border-none rounded-[1.75rem]">
         <CardHeader>
-          <CardTitle>Favorites</CardTitle>
+          <CardTitle className="font-display text-2xl font-black uppercase tracking-[-0.06em] text-white">
+            Favorites
+          </CardTitle>
         </CardHeader>
         <CardContent>
           {favorites.length === 0 ? (
@@ -59,18 +61,22 @@ export default async function FavoritesPage() {
               {favorites.map((bar) => (
                 <li
                   key={bar.id}
-                  className="flex flex-wrap items-center justify-between gap-3 rounded-md border p-3"
+                  className="glass-card flex flex-wrap items-center justify-between gap-3 rounded-2xl p-4"
                 >
                   <Link
                     href={`/bars/${bar.slug}`}
-                    className="text-sm font-medium hover:underline"
+                    className="font-medium text-white transition-colors hover:text-(--accent-gold)"
                   >
                     {bar.name}
                   </Link>
 
                   <form action={removeFavorite}>
                     <input type="hidden" name="slug" value={bar.slug} />
-                    <Button type="submit" variant="outline" size="sm">
+                    <Button
+                      type="submit"
+                      size="sm"
+                      className="rounded-sm border border-[rgba(255,255,255,0.14)] bg-transparent text-white hover:bg-[rgba(204,0,0,0.2)] hover:text-white"
+                    >
                       Remove
                     </Button>
                   </form>

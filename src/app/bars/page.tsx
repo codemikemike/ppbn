@@ -86,7 +86,7 @@ const StaticStars = ({ rating }: { rating: number | null }) => {
             key={index}
             className={
               filled
-                ? "h-4 w-4 fill-[var(--accent-gold)] text-[var(--accent-gold)]"
+                ? "h-4 w-4 fill-[#d4af37] text-[#d4af37]"
                 : "h-4 w-4 text-muted-foreground"
             }
           />
@@ -126,16 +126,26 @@ export default async function BarsPage({ searchParams }: BarsPageProps) {
   });
 
   return (
-    <main className="ppbn-page mx-auto w-full max-w-6xl px-4 py-10">
-      <header className="space-y-2">
-        <h1 className="text-2xl font-semibold">Bars</h1>
-        <p className="text-sm text-muted-foreground">
-          Find your next spot in Phnom Penh.
+    <main className="ppbn-page mx-auto w-full max-w-7xl px-4 py-10 lg:px-8">
+      <header className="ppbn-hero-frame space-y-4 rounded-[2rem] p-6 sm:p-8">
+        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-(--accent-gold)">
+          Bar Directory
+        </p>
+        <h1 className="font-display text-gradient-red text-4xl font-black uppercase tracking-[-0.08em] sm:text-5xl">
+          Bars
+        </h1>
+        <p className="max-w-2xl text-sm leading-7 text-muted-foreground sm:text-base">
+          Find your next spot in Phnom Penh with a premium dark layout, red
+          active filters, and featured venues that glow on hover.
         </p>
       </header>
 
       <search className="mt-6 block" aria-label="Search bars">
-        <form role="search" method="get" className="flex items-center gap-2">
+        <form
+          role="search"
+          method="get"
+          className="flex flex-col gap-3 sm:flex-row sm:items-center"
+        >
           <label htmlFor="bar-search" className="sr-only">
             Search bars
           </label>
@@ -171,7 +181,9 @@ export default async function BarsPage({ searchParams }: BarsPageProps) {
 
       <nav aria-label="Bar filters" className="mt-6 space-y-5">
         <div>
-          <h2 className="text-sm font-medium">Area</h2>
+          <h2 className="font-display text-sm font-semibold uppercase tracking-[0.24em] text-white">
+            Area
+          </h2>
           <div className="mt-2 flex flex-wrap gap-2">
             {AREA_OPTIONS.map((option) => {
               const isActive = option.value === activeArea;
@@ -195,7 +207,9 @@ export default async function BarsPage({ searchParams }: BarsPageProps) {
         </div>
 
         <div>
-          <h2 className="text-sm font-medium">Category</h2>
+          <h2 className="font-display text-sm font-semibold uppercase tracking-[0.24em] text-white">
+            Category
+          </h2>
           <div className="mt-2 flex flex-wrap gap-2">
             {CATEGORY_OPTIONS.map((option) => {
               const isActive = option.value === activeCategory;
@@ -227,8 +241,8 @@ export default async function BarsPage({ searchParams }: BarsPageProps) {
         <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {bars.map((bar) => (
             <Link key={bar.id} href={`/bars/${bar.slug}`} className="block">
-              <Card className="ppbn-card overflow-hidden">
-                <div className="relative h-40 ppbn-hero-bg" aria-hidden="true">
+              <Card className="ppbn-card glass-card hover:glow-red transition-all overflow-hidden rounded-[1.5rem]">
+                <div className="relative h-40 gradient-red" aria-hidden="true">
                   {bar.isFeatured ? (
                     <div className="absolute left-3 top-3">
                       <span className="ppbn-badge-featured">FEATURED</span>
@@ -237,14 +251,16 @@ export default async function BarsPage({ searchParams }: BarsPageProps) {
                 </div>
 
                 <CardHeader>
-                  <CardTitle className="flex items-start justify-between gap-3">
+                  <CardTitle className="font-display flex items-start justify-between gap-3 text-white">
                     <span className="min-w-0 truncate">{bar.name}</span>
                     <span className="ppbn-pill">{bar.category}</span>
                   </CardTitle>
                 </CardHeader>
 
                 <CardContent className="space-y-3">
-                  <p className="text-xs text-muted-foreground">{bar.area}</p>
+                  <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">
+                    {bar.area}
+                  </p>
                   <StaticStars rating={bar.averageRating} />
                 </CardContent>
               </Card>

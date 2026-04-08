@@ -40,19 +40,24 @@ export default async function EventDetailPage({ params }: PageProps) {
   }
 
   return (
-    <main className="mx-auto w-full max-w-3xl px-4 py-10">
+    <main className="ppbn-page mx-auto w-full max-w-7xl px-4 py-10 lg:px-8">
       <nav aria-label="Breadcrumb">
         <Link
           href="/events"
-          className="text-sm text-muted-foreground hover:underline"
+          className="text-sm text-muted-foreground hover:text-white"
         >
           Back to Events
         </Link>
       </nav>
 
-      <header className="mt-4">
-        <h1 className="text-2xl font-semibold">{event.title}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
+      <header className="ppbn-hero-frame mt-4 space-y-4 rounded-[2rem] p-6 sm:p-8">
+        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-(--accent-gold)">
+          Event
+        </p>
+        <h1 className="font-display text-gradient-red text-4xl font-black uppercase tracking-[-0.08em] sm:text-5xl">
+          {event.title}
+        </h1>
+        <p className="mt-1 text-sm uppercase tracking-[0.22em] text-muted-foreground">
           <time dateTime={event.startTime.toISOString()}>
             {formatDate(event.startTime)}
           </time>
@@ -66,7 +71,7 @@ export default async function EventDetailPage({ params }: PageProps) {
       </header>
 
       <section className="mt-6 space-y-6" aria-label="Event details">
-        <Card>
+        <Card className="ppbn-card glass-card hover:glow-red transition-all rounded-[1.5rem]">
           <CardContent className="pt-6">
             <div className="relative aspect-video w-full overflow-hidden rounded-md">
               <ImageWithFallback
@@ -82,9 +87,11 @@ export default async function EventDetailPage({ params }: PageProps) {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="ppbn-card glass-card hover:glow-red transition-all rounded-[1.5rem]">
           <CardHeader>
-            <CardTitle className="text-base">Bar</CardTitle>
+            <CardTitle className="font-display text-base text-white">
+              Bar
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-sm">
@@ -95,9 +102,11 @@ export default async function EventDetailPage({ params }: PageProps) {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="ppbn-card glass-card hover:glow-red transition-all rounded-[1.5rem]">
           <CardHeader>
-            <CardTitle className="text-base">Description</CardTitle>
+            <CardTitle className="font-display text-base text-white">
+              Description
+            </CardTitle>
           </CardHeader>
           <CardContent>
             {event.description ? (

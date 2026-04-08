@@ -67,17 +67,22 @@ export default async function AdminUsersPage() {
   ]);
 
   return (
-    <main className="space-y-6">
-      <header className="space-y-1">
-        <h1 className="text-2xl font-semibold">Users</h1>
+    <main className="ppbn-page space-y-6">
+      <header className="ppbn-hero space-y-2">
+        <p className="ppbn-kicker">Moderation</p>
+        <h1 className="font-display text-gradient-red text-4xl font-black uppercase tracking-[-0.08em] sm:text-5xl">
+          Users
+        </h1>
         <p className="text-sm text-muted-foreground">
           Change roles and soft delete users.
         </p>
       </header>
 
-      <Card>
+      <Card className="glass-card glow-red border-none rounded-[1.75rem]">
         <CardHeader>
-          <h2 className="text-base font-medium">All users</h2>
+          <h2 className="font-display text-lg font-black uppercase tracking-[-0.06em] text-white">
+            All users
+          </h2>
         </CardHeader>
         <CardContent>
           {users.length === 0 ? (
@@ -85,10 +90,10 @@ export default async function AdminUsersPage() {
           ) : (
             <ul className="space-y-3">
               {users.map((user) => (
-                <li key={user.id} className="rounded-md border p-3">
+                <li key={user.id} className="glass-card rounded-2xl p-4">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-medium">
+                      <p className="truncate text-sm font-medium text-white">
                         {user.email}
                       </p>
                       <p className="text-xs text-muted-foreground">
@@ -110,7 +115,7 @@ export default async function AdminUsersPage() {
                           id={`role-${user.id}`}
                           name="role"
                           defaultValue={user.role}
-                          className="h-9 rounded-md border bg-background px-2 text-sm"
+                          className="h-9 rounded-md border border-[rgba(255,255,255,0.12)] bg-[rgba(255,255,255,0.04)] px-2 text-sm text-white"
                         >
                           {roles.map((role) => (
                             <option key={role} value={role}>
@@ -118,7 +123,11 @@ export default async function AdminUsersPage() {
                             </option>
                           ))}
                         </select>
-                        <Button type="submit" size="sm" variant="outline">
+                        <Button
+                          type="submit"
+                          size="sm"
+                          className="rounded-sm border border-[rgba(255,255,255,0.14)] bg-transparent text-white hover:bg-[rgba(204,0,0,0.2)] hover:text-white"
+                        >
                           Save
                         </Button>
                       </form>

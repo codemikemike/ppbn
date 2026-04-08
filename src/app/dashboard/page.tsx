@@ -24,45 +24,54 @@ export default async function DashboardPage() {
   const displayName = session.user.name ?? session.user.email;
 
   return (
-    <main className="mx-auto w-full max-w-3xl px-4 py-10">
-      <h1 className="text-2xl font-semibold">Dashboard</h1>
-      <p className="mt-6 text-sm text-muted-foreground">
-        Welcome back, {displayName}
-      </p>
+    <main className="ppbn-page mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
+      <header className="ppbn-hero mb-8">
+        <p className="ppbn-kicker">Member area</p>
+        <h1 className="font-display text-gradient-red text-4xl font-black uppercase tracking-[-0.08em] sm:text-5xl">
+          Dashboard
+        </h1>
+        <p className="mt-4 max-w-2xl text-sm text-muted-foreground">
+          Welcome back, {displayName}
+        </p>
+      </header>
 
       <section className="mt-8" aria-labelledby="dashboard-stats">
         <h2 id="dashboard-stats" className="sr-only">
           Stats
         </h2>
         <div className="grid gap-4 sm:grid-cols-3">
-          <Card>
+          <Card className="glass-card glow-red border-none rounded-[1.5rem]">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">Reviews</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">
+                Reviews
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-2xl font-semibold">{stats.reviewsCount}</p>
+              <p className="font-display text-3xl font-black text-white">
+                {stats.reviewsCount}
+              </p>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="glass-card glow-red border-none rounded-[1.5rem]">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
                 Favorite bars
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-2xl font-semibold">
+              <p className="font-display text-3xl font-black text-white">
                 {stats.favoriteBarsCount}
               </p>
             </CardContent>
           </Card>
-          <Card>
+          <Card className="glass-card glow-red border-none rounded-[1.5rem]">
             <CardHeader className="pb-2">
-              <CardTitle className="text-sm font-medium">
+              <CardTitle className="text-sm font-medium text-muted-foreground">
                 Staff ratings
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-2xl font-semibold">
+              <p className="font-display text-3xl font-black text-white">
                 {stats.staffRatingsCount}
               </p>
             </CardContent>
@@ -71,13 +80,16 @@ export default async function DashboardPage() {
       </section>
 
       <section className="mt-8" aria-labelledby="dashboard-links">
-        <h2 id="dashboard-links" className="text-lg font-semibold">
+        <h2
+          id="dashboard-links"
+          className="font-display text-2xl font-black uppercase tracking-[-0.06em] text-white"
+        >
           Quick links
         </h2>
-        <ul className="mt-3 space-y-2">
+        <ul className="mt-3 grid gap-3 sm:grid-cols-3">
           <li>
             <Link
-              className="text-sm font-medium hover:underline"
+              className="glass-card block rounded-2xl px-4 py-4 text-sm font-medium text-white transition-all duration-300 hover:glow-red"
               href="/dashboard/reviews"
             >
               My reviews
@@ -85,7 +97,7 @@ export default async function DashboardPage() {
           </li>
           <li>
             <Link
-              className="text-sm font-medium hover:underline"
+              className="glass-card block rounded-2xl px-4 py-4 text-sm font-medium text-white transition-all duration-300 hover:glow-red"
               href="/dashboard/favorites"
             >
               Favorites
@@ -93,7 +105,7 @@ export default async function DashboardPage() {
           </li>
           <li>
             <Link
-              className="text-sm font-medium hover:underline"
+              className="glass-card block rounded-2xl px-4 py-4 text-sm font-medium text-white transition-all duration-300 hover:glow-red"
               href="/dashboard/settings"
             >
               Settings

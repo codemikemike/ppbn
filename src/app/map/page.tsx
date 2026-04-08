@@ -2,7 +2,6 @@ import Link from "next/link";
 
 import { barService } from "@/services/barService";
 import { Button } from "@/components/ui/button";
-import MapClient from "@/components/map/MapClient";
 import type { BarArea } from "@/domain/dtos/BarArea";
 import type { BarCategory } from "@/domain/dtos/BarCategory";
 import { BAR_CATEGORY_LABELS } from "@/domain/constants";
@@ -98,15 +97,20 @@ export default async function MapPage({ searchParams }: MapPageProps) {
     ...(activeCategory ? { category: activeCategory } : {}),
   });
 
-  const barsWithCoordinates = bars.filter(
-    (bar) =>
-      typeof bar.latitude === "number" && typeof bar.longitude === "number",
-  );
+  // const barsWithCoordinates = bars.filter(
+  //   (bar) =>
+  //     typeof bar.latitude === "number" && typeof bar.longitude === "number",
+  // );
 
   return (
-    <main className="mx-auto w-full max-w-5xl px-4 py-10">
-      <header>
-        <h1 className="text-2xl font-semibold">Map</h1>
+    <main className="ppbn-page mx-auto w-full max-w-7xl px-4 py-10 lg:px-8">
+      <header className="ppbn-hero-frame space-y-4 rounded-[2rem] p-6 sm:p-8">
+        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-(--accent-gold)">
+          Map
+        </p>
+        <h1 className="font-display text-gradient-red text-4xl font-black uppercase tracking-[-0.08em] sm:text-5xl">
+          Nightlife Map
+        </h1>
         <p className="mt-2 text-sm text-muted-foreground">
           Explore Phnom Penh nightlife bars by location.
         </p>
@@ -164,13 +168,29 @@ export default async function MapPage({ searchParams }: MapPageProps) {
         </div>
       </nav>
 
-      {barsWithCoordinates.length === 0 ? (
-        <p className="mt-6 text-sm text-muted-foreground">
-          No bars with coordinates found for the selected filters.
-        </p>
-      ) : (
-        <MapClient bars={barsWithCoordinates} />
-      )}
+      <section className="mt-6 space-y-6">
+        <div className="glass-card overflow-hidden rounded-[2rem] border border-border/70">
+          <iframe
+            src="https://www.google.com/maps/d/u/0/embed?mid=1w7V0tge2Rmy76hPrtH3k-wsWfGUF9Hk&ehbc=2E312F"
+            width="100%"
+            height="600"
+            style={{ border: 0, borderRadius: "8px" }}
+            allowFullScreen
+            loading="lazy"
+            title="Phnom Penh Nightlife Map"
+          />
+        </div>
+        <div className="flex justify-end">
+          <a
+            href="https://www.google.com/maps/d/u/0/viewer?mid=1w7V0tge2Rmy76hPrtH3k-wsWfGUF9Hk&hl=en"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mt-2 text-sm font-medium text-(--accent-gold) hover:text-white underline"
+          >
+            View Full Map
+          </a>
+        </div>
+      </section>
     </main>
   );
 }
