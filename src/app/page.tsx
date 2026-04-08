@@ -1,8 +1,16 @@
 import Link from "next/link";
-import { Star } from "lucide-react";
+import {
+  ArrowRight,
+  CalendarDays,
+  Flame,
+  MapPinned,
+  Music4,
+  Sparkles,
+  Star,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { RevealOnScroll } from "@/components/shared/RevealOnScroll";
 import { blogService } from "@/services/blogService";
 import { tonightService } from "@/services/tonightService";
@@ -16,9 +24,21 @@ const AREAS: ReadonlyArray<{ label: string; area: string }> = [
   { label: "Street 104", area: "Street104" },
 ];
 
+const formatShortDate = (value: string) =>
+  new Intl.DateTimeFormat("en-GB", {
+    weekday: "short",
+    day: "2-digit",
+    month: "short",
+  }).format(new Date(value));
+
+const formatRating = (rating: number | null) =>
+  rating === null ? "No ratings yet" : rating.toFixed(1);
+
 const StaticStars = ({ rating }: { rating: number | null }) => {
   if (rating === null) {
-    return <span className="text-xs text-muted-foreground">No ratings</span>;
+    return (
+      <span className="text-xs text-muted-foreground">No ratings yet</span>
+    );
   }
 
   const clamped = Math.max(0, Math.min(5, Math.round(rating)));
@@ -27,19 +47,20 @@ const StaticStars = ({ rating }: { rating: number | null }) => {
     <div className="flex items-center gap-1" aria-label={`${rating} out of 5`}>
       {Array.from({ length: 5 }, (_, index) => {
         const filled = index < clamped;
+
         return (
           <Star
             key={index}
             className={
               filled
-                ? "h-4 w-4 fill-[var(--accent-gold)] text-[var(--accent-gold)]"
-                : "h-4 w-4 text-muted-foreground"
+                ? "h-4 w-4 fill-(--accent-gold) text-(--accent-gold)"
+                : "h-4 w-4 text-muted-foreground/60"
             }
           />
         );
       })}
-      <span className="ml-1 text-xs text-muted-foreground">
-        {rating.toFixed(1)}
+      <span className="ml-1 text-xs font-medium text-(--accent-gold)">
+        {formatRating(rating)}
       </span>
     </div>
   );
@@ -56,255 +77,504 @@ export default async function Home() {
     blogService.listPublishedPosts(1, 3),
   ]);
 
-  return (
-    <div className="ppbn-page flex flex-1 flex-col">
-      <main>
-        <section className="ppbn-hero-bg relative overflow-hidden">
-          <div className="mx-auto w-full max-w-6xl px-4 py-20 sm:py-24">
-            <div className="max-w-3xl space-y-6">
-              <p className="text-xs font-semibold tracking-[0.2em] text-muted-foreground">
-                PHNOM PENH · NIGHTLIFE
-              </p>
-              <h1 className="text-balance text-4xl font-semibold leading-tight sm:text-5xl">
-                PHNOM PENH BY NIGHT
-              </h1>
-              <p className="text-pretty text-lg leading-8 text-muted-foreground">
-                Discover the Best Nightlife in Cambodia
-              </p>
+  const featuredBars = tonight.featuredBars.slice(0, 4);
+  const openBarIds = new Set(tonight.openBars.map((bar) => bar.id));
+  const liveMusicCount = tonight.liveMusicVenues.length;
 
-              <div className="flex flex-col gap-3 sm:flex-row">
+  return (
+    <div className="ppbn-page flex min-h-screen flex-col">
+      <main className="flex-1">
+        <section className="ppbn-hero-bg relative overflow-hidden border-b border-border/70">
+          <div className="ppbn-grid-overlay pointer-events-none absolute inset-0 opacity-60" />
+
+          <div className="mx-auto grid w-full max-w-7xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16 lg:px-8 lg:py-24">
+            <div className="relative z-10 flex flex-col justify-center space-y-8">
+              <div className="space-y-5">
+                <p className="ppbn-hero-kicker">
+                  <Flame className="h-4 w-4" />
+                  Phnom Penh after dark
+                </p>
+                <h1 className="ppbn-hero-title font-display text-balance text-gradient-red">
+                  Premium nightlife. Black canvas. Red heat.
+                </h1>
+                <p className="ppbn-hero-copy text-pretty">
+                  Discover the city&apos;s sharpest bars, the busiest rooms, and
+                  the venues that matter tonight. Built for late evenings, loud
+                  rooms, and a little gold in the details.
+                </p>
+              </div>
+
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                 <Button className="ppbn-button" asChild>
-                  <Link href="/bars">Explore Bars</Link>
+                  <Link href="/bars" className="inline-flex items-center gap-2">
+                    Explore Bars
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
                 </Button>
                 <Button className="ppbn-button" variant="outline" asChild>
-                  <Link href="/events">Tonight&apos;s Events</Link>
+                  <Link
+                    href="/events"
+                    className="inline-flex items-center gap-2"
+                  >
+                    Tonight&apos;s Events
+                    <CalendarDays className="h-4 w-4" />
+                  </Link>
                 </Button>
               </div>
+
+              <div className="flex flex-wrap gap-3 text-xs uppercase tracking-[0.24em] text-muted-foreground">
+                <span className="ppbn-pill text-(--accent-gold)">
+                  <Sparkles className="h-3.5 w-3.5" />
+                  Revalidated hourly
+                </span>
+                <span className="ppbn-pill">Black / Red / Gold palette</span>
+                <span className="ppbn-pill">Glassmorphism / glow / motion</span>
+              </div>
+            </div>
+
+            <div className="relative z-10">
+              <Card className="ppbn-hero-frame glass-card hover:glow-red transition-all rounded-[2rem] p-0">
+                <CardContent className="relative space-y-6 p-6 sm:p-8">
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-[0.28em] text-(--accent-gold)">
+                        Tonight in Phnom Penh
+                      </p>
+                      <h2 className="mt-2 text-2xl font-black uppercase tracking-[-0.06em] text-white">
+                        Live right now
+                      </h2>
+                    </div>
+                    <span className="ppbn-badge-featured">Featured</span>
+                  </div>
+
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    {[
+                      {
+                        label: "Open bars",
+                        value: tonight.openBars.length,
+                        icon: MapPinned,
+                      },
+                      {
+                        label: "Live music venues",
+                        value: liveMusicCount,
+                        icon: Music4,
+                      },
+                      {
+                        label: "Events tonight",
+                        value: tonight.eventsTonight.length,
+                        icon: Flame,
+                      },
+                      {
+                        label: "Featured bars",
+                        value: featuredBars.length,
+                        icon: Sparkles,
+                      },
+                    ].map((item) => (
+                      <div
+                        key={item.label}
+                        className="ppbn-card glass-card hover:glow-red transition-all ppbn-card-strong rounded-2xl p-4"
+                      >
+                        <div className="flex items-center justify-between gap-3">
+                          <div>
+                            <p className="text-xs uppercase tracking-[0.22em] text-muted-foreground">
+                              {item.label}
+                            </p>
+                            <p className="mt-2 text-3xl font-black tracking-[-0.08em] text-white">
+                              {item.value}
+                            </p>
+                          </div>
+                          <item.icon className="h-5 w-5 text-(--accent-gold)" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
+                        Featured bars
+                      </p>
+                      <Link
+                        href="/bars"
+                        className="text-xs uppercase tracking-[0.24em] text-(--accent-gold) hover:text-white"
+                      >
+                        View all
+                      </Link>
+                    </div>
+
+                    <div className="space-y-3">
+                      {featuredBars.length === 0 ? (
+                        <div className="space-y-3">
+                          <div className="ppbn-skeleton h-20" />
+                          <div className="ppbn-skeleton h-20" />
+                        </div>
+                      ) : (
+                        featuredBars.map((bar) => {
+                          const isOpen = openBarIds.has(bar.id);
+
+                          return (
+                            <Link
+                              key={bar.id}
+                              href={`/bars/${bar.slug}`}
+                              className="group block"
+                            >
+                              <article className="ppbn-card rounded-2xl p-4 transition-transform duration-200 group-hover:-translate-y-1">
+                                <div className="flex items-start justify-between gap-4">
+                                  <div className="min-w-0 space-y-1">
+                                    <div className="flex flex-wrap items-center gap-2">
+                                      <span className="ppbn-badge-featured">
+                                        Featured
+                                      </span>
+                                      <span className="ppbn-pill">
+                                        {bar.area}
+                                      </span>
+                                      <span className="ppbn-pill">
+                                        {bar.category}
+                                      </span>
+                                    </div>
+                                    <h3 className="truncate text-lg font-bold tracking-[-0.04em] text-white">
+                                      {bar.name}
+                                    </h3>
+                                  </div>
+                                  <div className="flex flex-col items-end gap-2 text-right">
+                                    <StaticStars rating={bar.averageRating} />
+                                    <span className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                                      {isOpen ? "Open now" : "Tonight"}
+                                    </span>
+                                  </div>
+                                </div>
+                              </article>
+                            </Link>
+                          );
+                        })
+                      )}
+                    </div>
+                  </div>
+
+                  <p className="text-xs uppercase tracking-[0.24em] text-muted-foreground">
+                    {formatShortDate(tonight.date)} · refreshed with the latest
+                    nightlife data
+                  </p>
+                </CardContent>
+              </Card>
             </div>
           </div>
         </section>
 
-        <div className="mx-auto w-full max-w-6xl space-y-14 px-4 py-12">
+        <div className="mx-auto flex w-full max-w-7xl flex-col gap-16 px-4 py-14 sm:px-6 lg:px-8 lg:py-20">
           <RevealOnScroll>
-            <section className="space-y-4" aria-label="Trending bars">
-              <header className="flex items-end justify-between gap-4">
+            <section aria-labelledby="stats-title" className="space-y-6">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                 <div>
-                  <h2 className="text-xl font-semibold">
-                    Trending Bars This Week
-                  </h2>
-                  <p className="text-sm text-muted-foreground">
-                    Featured venues, curated for the city after dark.
+                  <p className="text-xs font-semibold uppercase tracking-[0.3em] text-(--accent-gold)">
+                    Atmosphere
                   </p>
+                  <h2
+                    id="stats-title"
+                    className="ppbn-section-title font-display mt-2 text-white"
+                  >
+                    Built to feel expensive
+                  </h2>
+                </div>
+                <p className="ppbn-section-copy max-w-2xl text-sm sm:text-right">
+                  Every panel, border, and highlight leans into a premium dark
+                  editorial style: black foundations, red energy, gold accents,
+                  and motion that stays sharp instead of noisy.
+                </p>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                {[
+                  {
+                    label: "featured venues",
+                    value: featuredBars.length,
+                    detail: "Curated for late nights",
+                  },
+                  {
+                    label: "bars open now",
+                    value: tonight.openBars.length,
+                    detail: "Live tonight in the city",
+                  },
+                  {
+                    label: "events tonight",
+                    value: tonight.eventsTonight.length,
+                    detail: "What is actually happening",
+                  },
+                  {
+                    label: "areas covered",
+                    value: AREAS.length,
+                    detail: "Neighborhood discovery",
+                  },
+                ].map((item) => (
+                  <Card
+                    key={item.label}
+                    className="ppbn-card glass-card hover:glow-red transition-all rounded-[1.75rem]"
+                  >
+                    <CardContent className="space-y-4 p-5">
+                      <p className="text-xs uppercase tracking-[0.28em] text-muted-foreground">
+                        {item.label}
+                      </p>
+                      <p className="text-4xl font-black tracking-[-0.08em] text-white">
+                        {item.value}
+                      </p>
+                      <p className="text-sm leading-6 text-muted-foreground">
+                        {item.detail}
+                      </p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </section>
+          </RevealOnScroll>
+
+          <RevealOnScroll>
+            <section
+              aria-labelledby="featured-bars-title"
+              className="space-y-6"
+            >
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.3em] text-(--accent-red-bright)">
+                    Featured tonight
+                  </p>
+                  <h2
+                    id="featured-bars-title"
+                    className="ppbn-section-title font-display mt-2 text-white"
+                  >
+                    Bars worth your time
+                  </h2>
                 </div>
                 <Link
                   href="/bars"
-                  className="text-sm text-muted-foreground hover:underline"
+                  className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.22em] text-(--accent-gold) transition hover:text-white"
                 >
-                  View all
+                  Browse all bars
+                  <ArrowRight className="h-4 w-4" />
                 </Link>
-              </header>
+              </div>
 
-              {tonight.featuredBars.length === 0 ? (
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                  <div className="ppbn-skeleton h-24" />
-                  <div className="ppbn-skeleton h-24" />
-                  <div className="ppbn-skeleton h-24" />
+              {featuredBars.length === 0 ? (
+                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                  {Array.from({ length: 4 }, (_, index) => (
+                    <div
+                      key={index}
+                      className="ppbn-skeleton h-56 rounded-[1.75rem]"
+                    />
+                  ))}
                 </div>
               ) : (
-                <div className="-mx-4 overflow-x-auto px-4">
-                  <ul className="flex snap-x snap-mandatory gap-4 pb-2">
-                    {tonight.featuredBars.map((bar) => (
-                      <li
+                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                  {featuredBars.map((bar) => {
+                    const isOpen = openBarIds.has(bar.id);
+
+                    return (
+                      <Link
                         key={bar.id}
-                        className="snap-start"
-                        aria-label={`${bar.name} featured bar`}
+                        href={`/bars/${bar.slug}`}
+                        className="group block"
                       >
-                        <Link href={`/bars/${bar.slug}`} className="block">
-                          <div className="ppbn-card w-[280px] overflow-hidden rounded-xl">
-                            <div className="relative h-28 ppbn-hero-bg" />
-                            <div className="space-y-2 p-4">
-                              <div className="flex items-start justify-between gap-2">
-                                <p className="text-sm font-medium">
-                                  {bar.name}
-                                </p>
+                        <article className="ppbn-card glass-card hover:glow-red transition-all h-full overflow-hidden rounded-[1.75rem]">
+                          <div className="h-36 bg-[radial-gradient(circle_at_20%_20%,rgba(204,0,0,0.45),transparent_34%),radial-gradient(circle_at_85%_20%,rgba(212,175,55,0.25),transparent_26%),linear-gradient(180deg,#1f1f1f,#111)]" />
+                          <div className="space-y-4 p-5">
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="space-y-2">
                                 <span className="ppbn-badge-featured">
-                                  FEATURED
+                                  Featured
                                 </span>
+                                <h3 className="font-display text-xl font-bold tracking-[-0.05em] text-white">
+                                  {bar.name}
+                                </h3>
                               </div>
-                              <p className="text-xs text-muted-foreground">
-                                {bar.area} · {bar.category}
-                              </p>
+                              <span className="ppbn-pill">
+                                {isOpen ? "Open" : "Tonight"}
+                              </span>
+                            </div>
+
+                            <div className="flex flex-wrap gap-2">
+                              <span className="ppbn-pill">{bar.area}</span>
+                              <span className="ppbn-pill">{bar.category}</span>
+                            </div>
+
+                            <div className="flex items-center justify-between gap-3">
                               <StaticStars rating={bar.averageRating} />
+                              <span className="text-xs uppercase tracking-[0.22em] text-muted-foreground transition group-hover:text-(--accent-gold)">
+                                View details
+                              </span>
                             </div>
                           </div>
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
+                        </article>
+                      </Link>
+                    );
+                  })}
                 </div>
               )}
             </section>
           </RevealOnScroll>
 
           <RevealOnScroll>
-            <section className="grid gap-4 md:grid-cols-2" aria-label="Tonight">
-              <Card className="ppbn-card">
-                <CardHeader>
-                  <h2 className="text-base font-medium">
-                    Tonight in Phnom Penh
+            <section aria-labelledby="areas-title" className="space-y-6">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.3em] text-(--accent-gold)">
+                    Explore by area
+                  </p>
+                  <h2
+                    id="areas-title"
+                    className="ppbn-section-title font-display mt-2 text-white"
+                  >
+                    Move through the city
                   </h2>
-                  <p className="text-sm text-muted-foreground">
-                    A quick preview of what is happening right now.
-                  </p>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <dl className="grid grid-cols-2 gap-3">
-                    <div className="rounded-md border border-border/70 p-3">
-                      <dt className="text-xs text-muted-foreground">Events</dt>
-                      <dd className="mt-1 text-lg font-medium">
-                        {tonight.eventsTonight.length}
-                      </dd>
-                    </div>
-                    <div className="rounded-md border border-border/70 p-3">
-                      <dt className="text-xs text-muted-foreground">
-                        Open bars
-                      </dt>
-                      <dd className="mt-1 text-lg font-medium">
-                        {tonight.openBars.length}
-                      </dd>
-                    </div>
-                  </dl>
+                </div>
+                <p className="ppbn-section-copy max-w-xl text-sm sm:text-right">
+                  Use the neighborhoods locals actually talk about. Each area
+                  link is a shortcut into a different kind of night.
+                </p>
+              </div>
 
-                  <Button className="ppbn-button" asChild>
-                    <Link href="/tonight">Open Tonight</Link>
-                  </Button>
-                </CardContent>
-              </Card>
-
-              <Card className="ppbn-card">
-                <CardHeader>
-                  <h2 className="text-base font-medium">Explore by Area</h2>
-                  <p className="text-sm text-muted-foreground">
-                    Find nightlife in the neighborhoods locals love.
-                  </p>
-                </CardHeader>
-                <CardContent>
-                  <ul className="grid gap-3 sm:grid-cols-2">
-                    {AREAS.map((area) => (
-                      <li key={area.area}>
-                        <Link
-                          href={`/bars?area=${area.area}`}
-                          className="ppbn-card flex min-h-11 items-center justify-between rounded-xl px-4 py-3"
-                        >
-                          <span className="text-sm font-medium">
+              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                {AREAS.map((area) => (
+                  <Link
+                    key={area.area}
+                    href={`/bars?area=${area.area}`}
+                    className="group block"
+                  >
+                    <article className="ppbn-card glass-card hover:glow-red transition-all rounded-[1.5rem] p-5">
+                      <div className="flex items-center justify-between gap-4">
+                        <div>
+                          <p className="text-xs uppercase tracking-[0.26em] text-muted-foreground">
+                            District
+                          </p>
+                          <h3 className="font-display mt-2 text-2xl font-black tracking-[-0.06em] text-white">
                             {area.label}
-                          </span>
-                          <span className="text-xs text-muted-foreground">
-                            Browse
-                          </span>
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
+                          </h3>
+                        </div>
+                        <MapPinned className="h-6 w-6 text-(--accent-red-bright) transition group-hover:text-(--accent-gold)" />
+                      </div>
+                      <p className="mt-5 text-sm text-muted-foreground">
+                        Browse bars, venues, and nightlife options around{" "}
+                        {area.label}.
+                      </p>
+                    </article>
+                  </Link>
+                ))}
+              </div>
             </section>
           </RevealOnScroll>
 
           <RevealOnScroll>
-            <section className="space-y-4" aria-label="Latest blog posts">
-              <header className="flex items-end justify-between gap-4">
+            <section aria-labelledby="blog-title" className="space-y-6">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                 <div>
-                  <h2 className="text-xl font-semibold">
-                    Latest from the Blog
-                  </h2>
-                  <p className="text-sm text-muted-foreground">
-                    Guides, stories, and nightlife intel.
+                  <p className="text-xs font-semibold uppercase tracking-[0.3em] text-(--accent-red-bright)">
+                    Editorial
                   </p>
+                  <h2
+                    id="blog-title"
+                    className="ppbn-section-title font-display mt-2 text-white"
+                  >
+                    The latest from the blog
+                  </h2>
                 </div>
                 <Link
                   href="/blog"
-                  className="text-sm text-muted-foreground hover:underline"
+                  className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.22em] text-(--accent-gold) transition hover:text-white"
                 >
-                  View all
+                  Read all stories
+                  <ArrowRight className="h-4 w-4" />
                 </Link>
-              </header>
+              </div>
 
               {latestPosts.length === 0 ? (
-                <div className="grid gap-3 sm:grid-cols-3">
-                  <div className="ppbn-skeleton h-24" />
-                  <div className="ppbn-skeleton h-24" />
-                  <div className="ppbn-skeleton h-24" />
+                <div className="grid gap-4 md:grid-cols-3">
+                  {Array.from({ length: 3 }, (_, index) => (
+                    <div
+                      key={index}
+                      className="ppbn-skeleton h-52 rounded-[1.75rem]"
+                    />
+                  ))}
                 </div>
               ) : (
-                <ul className="grid gap-4 md:grid-cols-3">
+                <div className="grid gap-4 md:grid-cols-3">
                   {latestPosts.map((post) => (
-                    <li key={post.id}>
-                      <Link href={`/blog/${post.slug}`} className="block">
-                        <Card className="ppbn-card">
-                          <CardHeader>
-                            <h3 className="text-sm font-medium">
-                              {post.title}
-                            </h3>
-                            <p className="text-xs text-muted-foreground line-clamp-2">
-                              {post.excerpt ?? "Read the latest from PPBN."}
-                            </p>
-                          </CardHeader>
-                          <CardContent>
-                            <p className="text-xs text-muted-foreground">
+                    <Link
+                      key={post.id}
+                      href={`/blog/${post.slug}`}
+                      className="group block h-full"
+                    >
+                      <article className="ppbn-card glass-card hover:glow-red transition-all flex h-full flex-col overflow-hidden rounded-[1.75rem]">
+                        <div className="h-32 bg-[radial-gradient(circle_at_20%_20%,rgba(204,0,0,0.45),transparent_35%),radial-gradient(circle_at_82%_28%,rgba(212,175,55,0.24),transparent_28%),linear-gradient(180deg,#1e1e1e,#101010)]" />
+                        <div className="flex flex-1 flex-col gap-4 p-5">
+                          <div className="flex items-center justify-between gap-3">
+                            <span className="ppbn-pill">
                               {post.category ?? "Nightlife"}
-                            </p>
-                          </CardContent>
-                        </Card>
-                      </Link>
-                    </li>
+                            </span>
+                            <span className="text-xs uppercase tracking-[0.22em] text-muted-foreground">
+                              {new Intl.DateTimeFormat("en-GB", {
+                                day: "2-digit",
+                                month: "short",
+                              }).format(new Date(post.publishedAt))}
+                            </span>
+                          </div>
+                          <h3 className="font-display text-xl font-bold tracking-[-0.05em] text-white">
+                            {post.title}
+                          </h3>
+                          <p className="line-clamp-3 text-sm leading-6 text-muted-foreground">
+                            {post.excerpt ??
+                              "Read the latest stories from Phnom Penh By Night."}
+                          </p>
+                          <div className="mt-auto flex items-center justify-between gap-3 pt-2">
+                            <span className="text-xs uppercase tracking-[0.22em] text-(--accent-gold)">
+                              Open article
+                            </span>
+                            <ArrowRight className="h-4 w-4 text-(--accent-red-bright) transition group-hover:translate-x-1 group-hover:text-(--accent-gold)" />
+                          </div>
+                        </div>
+                      </article>
+                    </Link>
                   ))}
-                </ul>
+                </div>
               )}
+            </section>
+          </RevealOnScroll>
+
+          <RevealOnScroll>
+            <section
+              aria-labelledby="cta-title"
+              className="ppbn-hero-frame rounded-[2rem] p-6 sm:p-8"
+            >
+              <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
+                <div className="space-y-4">
+                  <p className="text-xs font-semibold uppercase tracking-[0.3em] text-(--accent-gold)">
+                    Ready to go out
+                  </p>
+                  <h2
+                    id="cta-title"
+                    className="font-display text-3xl font-black uppercase tracking-[-0.06em] text-white sm:text-4xl"
+                  >
+                    Start with the strongest venues.
+                  </h2>
+                  <p className="max-w-2xl text-sm leading-7 text-muted-foreground sm:text-base">
+                    Browse the city&apos;s best bars, check what is open
+                    tonight, and move from there. The theme is dark, the
+                    lighting is low, and the route into a good night is fast.
+                  </p>
+                </div>
+
+                <div className="flex flex-col gap-3 sm:flex-row">
+                  <Button className="ppbn-button" asChild>
+                    <Link href="/bars">Browse bars</Link>
+                  </Button>
+                  <Button className="ppbn-button" variant="outline" asChild>
+                    <Link href="/tonight">See tonight</Link>
+                  </Button>
+                </div>
+              </div>
             </section>
           </RevealOnScroll>
         </div>
       </main>
 
-      <footer className="mt-auto border-t border-border/60">
-        <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-10 sm:flex-row sm:items-center sm:justify-between">
-          <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} Phnom Penh By Night
-          </p>
-          <nav aria-label="Footer" className="flex flex-wrap gap-4 text-xs">
-            <Link
-              href="/bars"
-              className="text-muted-foreground hover:underline"
-            >
-              Bars
-            </Link>
-            <Link
-              href="/events"
-              className="text-muted-foreground hover:underline"
-            >
-              Events
-            </Link>
-            <Link
-              href="/blog"
-              className="text-muted-foreground hover:underline"
-            >
-              Blog
-            </Link>
-            <Link
-              href="/staff"
-              className="text-muted-foreground hover:underline"
-            >
-              Staff
-            </Link>
-            <Link
-              href="/dashboard"
-              className="text-muted-foreground hover:underline"
-            >
-              Dashboard
-            </Link>
-          </nav>
-        </div>
-      </footer>
+      {/* Footer removed: now rendered globally in layout.tsx */}
     </div>
   );
 }

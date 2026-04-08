@@ -34,7 +34,6 @@ const formatReviewDate = (date: Date) =>
 
 const StaticStarRating = ({ rating }: { rating: number }) => {
   const clamped = Math.max(0, Math.min(5, Math.round(rating)));
-
   return (
     <div className="flex items-center gap-1" aria-label={`${rating} out of 5`}>
       {Array.from({ length: 5 }, (_, index) => {
@@ -44,8 +43,8 @@ const StaticStarRating = ({ rating }: { rating: number }) => {
             key={index}
             className={
               filled
-                ? "h-4 w-4 fill-[var(--accent-gold)] text-[var(--accent-gold)]"
-                : "h-4 w-4 text-muted-foreground"
+                ? "h-4 w-4 text-[#d4af37] fill-[#d4af37]"
+                : "h-4 w-4 text-[#444]"
             }
           />
         );
@@ -92,9 +91,9 @@ export default async function BarDetailPage({ params }: PageProps) {
   };
 
   return (
-    <main className="ppbn-page">
+    <main className="ppbn-page bg-[#0a0a0a] pb-16">
       <section aria-label="Bar hero" className="relative">
-        <div className="relative h-[320px] w-full overflow-hidden">
+        <div className="relative h-90 w-full overflow-hidden lg:h-115">
           <ImageWithFallback
             src={bar.primaryImageUrl}
             alt={`${bar.name} photo`}
@@ -104,24 +103,27 @@ export default async function BarDetailPage({ params }: PageProps) {
             sizes="100vw"
             priority
           />
-          <div className="ppbn-hero-overlay" aria-hidden="true" />
+          <div
+            className="absolute inset-0 bg-linear-to-t from-[#0a0a0a] via-[#0a0a0a]/60 to-transparent"
+            aria-hidden="true"
+          />
         </div>
 
-        <div className="mx-auto w-full max-w-6xl px-4">
-          <div className="-mt-10 rounded-2xl border border-border/70 bg-card/90 p-5 shadow-[var(--glow-red)] backdrop-blur-md">
+        <div className="mx-auto w-full max-w-7xl px-4 lg:px-8">
+          <div className="-mt-16 glass-card glow-red rounded-[2rem] p-6 shadow-2xl backdrop-blur-xl">
             <div className="flex flex-wrap items-start justify-between gap-4">
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
-                  <h1 className="truncate text-2xl font-semibold">
+                  <h1 className="font-display truncate text-3xl font-black uppercase tracking-[-0.08em] text-white sm:text-5xl">
                     {bar.name}
                   </h1>
                   {bar.averageRating !== null ? (
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-xs uppercase tracking-[0.22em] text-(--accent-gold)">
                       {bar.averageRating.toFixed(1)}
                     </span>
                   ) : null}
                 </div>
-                <p className="mt-1 text-sm text-muted-foreground">
+                <p className="mt-2 text-sm uppercase tracking-[0.22em] text-muted-foreground">
                   {bar.area} · {bar.category}
                 </p>
               </div>
@@ -134,10 +136,12 @@ export default async function BarDetailPage({ params }: PageProps) {
               </div>
             </div>
 
-            <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-4">
               <div className="flex items-center gap-2">
-                <span className="text-sm text-muted-foreground">Average</span>
-                <span className="text-sm font-medium">
+                <span className="text-sm uppercase tracking-[0.22em] text-muted-foreground">
+                  Average
+                </span>
+                <span className="text-sm font-medium text-white">
                   {formatAverageRating(bar.averageRating)}
                 </span>
                 {bar.averageRating !== null ? (
@@ -152,8 +156,8 @@ export default async function BarDetailPage({ params }: PageProps) {
         </div>
       </section>
 
-      <div className="mx-auto w-full max-w-6xl space-y-6 px-4 py-10">
-        <Card className="ppbn-card">
+      <div className="mx-auto w-full max-w-7xl space-y-6 px-4 py-10 lg:px-8">
+        <Card className="ppbn-card glass-card hover:glow-red transition-all rounded-[1.75rem]">
           <CardContent className="pt-6">
             <div className="ppbn-tabs" aria-label="Bar tabs">
               <input
@@ -203,7 +207,9 @@ export default async function BarDetailPage({ params }: PageProps) {
                   </dl>
 
                   <section className="mt-6" aria-label="Rate this bar">
-                    <h2 className="text-sm font-medium">Your rating</h2>
+                    <h2 className="font-display text-sm font-semibold uppercase tracking-[0.22em] text-white">
+                      Your rating
+                    </h2>
                     {session ? (
                       <StarRating
                         barSlug={bar.slug}
@@ -218,7 +224,9 @@ export default async function BarDetailPage({ params }: PageProps) {
 
                   {bar.description ? (
                     <div className="mt-6">
-                      <h2 className="text-sm font-medium">Description</h2>
+                      <h2 className="font-display text-sm font-semibold uppercase tracking-[0.22em] text-white">
+                        Description
+                      </h2>
                       <p className="mt-2 whitespace-pre-line text-sm text-muted-foreground">
                         {bar.description}
                       </p>
@@ -250,15 +258,22 @@ export default async function BarDetailPage({ params }: PageProps) {
                   </div>
 
                   {visibleReviews.length === 0 ? (
-                    <p className="mt-4 text-sm text-muted-foreground">
-                      No reviews yet.
-                    </p>
+                    <div className="mt-4">
+                      <div className="glass-card bg-[#181818] border border-border/70 rounded-xl p-6 flex flex-col items-center justify-center">
+                        <p className="text-lg font-semibold text-white mb-2">
+                          No reviews yet
+                        </p>
+                        <p className="text-sm text-[#888]">
+                          Be the first to review this bar!
+                        </p>
+                      </div>
+                    </div>
                   ) : (
                     <div className="mt-4 space-y-4">
                       {visibleReviews.map((review) => (
                         <article
                           key={review.id}
-                          className="rounded-xl border border-border/70 bg-background/30 p-4"
+                          className="glass-card border border-border/70 rounded-xl p-6"
                         >
                           <header className="flex items-start justify-between gap-4">
                             <div className="flex items-start gap-3">
@@ -268,7 +283,7 @@ export default async function BarDetailPage({ params }: PageProps) {
                                 </span>
                               </div>
                               <div className="space-y-1">
-                                <p className="text-sm font-medium">
+                                <p className="font-display text-base font-bold uppercase tracking-[0.12em] text-white">
                                   {review.user.name ?? "Anonymous"}
                                 </p>
                                 <p className="text-xs text-muted-foreground">
@@ -276,16 +291,11 @@ export default async function BarDetailPage({ params }: PageProps) {
                                 </p>
                               </div>
                             </div>
-
                             <div className="flex items-center gap-2">
-                              <span className="text-sm font-medium">
-                                {review.rating}/5
-                              </span>
                               <StaticStarRating rating={review.rating} />
                             </div>
                           </header>
-
-                          <p className="mt-3 whitespace-pre-line text-sm text-muted-foreground">
+                          <p className="mt-3 whitespace-pre-line text-sm text-[#888]">
                             {review.content}
                           </p>
                         </article>
@@ -323,6 +333,21 @@ export default async function BarDetailPage({ params }: PageProps) {
                   )}
                 </section>
               </div>
+
+              <section className="mt-6 space-y-4" aria-label="Location map">
+                <h2 className="font-display text-sm font-semibold uppercase tracking-[0.22em] text-white">
+                  Map
+                </h2>
+                <iframe
+                  title={`${bar.name} location map`}
+                  width="100%"
+                  height="400"
+                  style={{ border: 0 }}
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  src={`https://www.google.com/maps?q=${encodeURIComponent(`${bar.name}, ${bar.area}, Phnom Penh`)}&output=embed`}
+                />
+              </section>
             </div>
           </CardContent>
         </Card>

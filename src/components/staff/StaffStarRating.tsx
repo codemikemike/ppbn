@@ -130,8 +130,8 @@ export default function StaffStarRating({
               <Star
                 className={
                   filled
-                    ? "h-5 w-5 fill-primary text-primary"
-                    : "h-5 w-5 text-muted-foreground"
+                    ? "h-5 w-5 fill-[#d4af37] text-[#d4af37] transition-transform"
+                    : "h-5 w-5 text-[#444]"
                 }
               />
             </button>
@@ -154,7 +154,7 @@ export default function StaffStarRating({
           }
           role={saveState === "error" ? "alert" : "status"}
         >
-          {message}
+          {message.replace(/"/g, "&quot;")}
         </p>
       ) : null}
     </fieldset>

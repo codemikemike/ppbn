@@ -120,10 +120,10 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 p-4">
-      <Card className="w-full max-w-md">
+    <div className="ppbn-page min-h-screen flex items-center justify-center bg-[#0a0a0a] p-4">
+      <Card className="glass-card glow-red w-full max-w-md rounded-[1.75rem]">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">
+          <CardTitle className="font-display text-gradient-red text-2xl font-black uppercase tracking-[-0.08em] text-center">
             Create Your Account
           </CardTitle>
           <CardDescription className="text-center">
@@ -150,10 +150,10 @@ export default function RegisterPage() {
                   setName(e.target.value)
                 }
                 disabled={isLoading}
-                className={validationErrors.name ? "border-red-500" : ""}
+                className={`ppbn-input ${validationErrors.name ? "border-[#cc0000]" : ""}`}
               />
               {validationErrors.name && (
-                <p className="text-sm text-red-500 flex items-center gap-1">
+                <p className="text-sm text-[#ff4444] flex items-center gap-1">
                   <AlertCircle className="h-3 w-3" />
                   {validationErrors.name}
                 </p>
@@ -171,10 +171,10 @@ export default function RegisterPage() {
                   setEmail(e.target.value)
                 }
                 disabled={isLoading}
-                className={validationErrors.email ? "border-red-500" : ""}
+                className={`ppbn-input ${validationErrors.email ? "border-[#cc0000]" : ""}`}
               />
               {validationErrors.email && (
-                <p className="text-sm text-red-500 flex items-center gap-1">
+                <p className="text-sm text-[#ff4444] flex items-center gap-1">
                   <AlertCircle className="h-3 w-3" />
                   {validationErrors.email}
                 </p>
@@ -193,14 +193,12 @@ export default function RegisterPage() {
                     setPassword(e.target.value)
                   }
                   disabled={isLoading}
-                  className={
-                    validationErrors.password ? "border-red-500 pr-10" : "pr-10"
-                  }
+                  className={`ppbn-input pr-10 ${validationErrors.password ? "border-[#cc0000]" : ""}`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white"
                   disabled={isLoading}
                 >
                   {showPassword ? (
@@ -211,12 +209,12 @@ export default function RegisterPage() {
                 </button>
               </div>
               {validationErrors.password && (
-                <p className="text-sm text-red-500 flex items-center gap-1">
+                <p className="text-sm text-[#ff4444] flex items-center gap-1">
                   <AlertCircle className="h-3 w-3" />
                   {validationErrors.password}
                 </p>
               )}
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-muted-foreground">
                 At least 8 characters with uppercase, lowercase, and number
               </p>
             </div>
@@ -235,14 +233,14 @@ export default function RegisterPage() {
                   disabled={isLoading}
                   className={
                     validationErrors.confirmPassword
-                      ? "border-red-500 pr-10"
-                      : "pr-10"
+                      ? "ppbn-input pr-10 border-[#cc0000]"
+                      : "ppbn-input pr-10"
                   }
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white"
                   disabled={isLoading}
                 >
                   {showConfirmPassword ? (
@@ -253,24 +251,28 @@ export default function RegisterPage() {
                 </button>
               </div>
               {validationErrors.confirmPassword && (
-                <p className="text-sm text-red-500 flex items-center gap-1">
+                <p className="text-sm text-[#ff4444] flex items-center gap-1">
                   <AlertCircle className="h-3 w-3" />
                   {validationErrors.confirmPassword}
                 </p>
               )}
             </div>
 
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button
+              type="submit"
+              className="w-full rounded-sm bg-[#cc0000] text-white hover:bg-[#ff0000]"
+              disabled={isLoading}
+            >
               {isLoading ? "Creating account..." : "Create Account"}
             </Button>
           </form>
         </CardContent>
         <CardFooter className="flex justify-center">
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-muted-foreground">
             Already have an account?{" "}
             <Link
               href="/login"
-              className="text-primary hover:underline font-medium"
+              className="font-medium text-(--accent-gold) hover:text-white"
             >
               Login
             </Link>

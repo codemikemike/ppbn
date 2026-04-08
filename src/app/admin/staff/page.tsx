@@ -64,17 +64,22 @@ export default async function AdminStaffPage() {
   const staffProfiles = await adminService.listStaffProfiles();
 
   return (
-    <main className="space-y-6">
-      <header className="space-y-1">
-        <h1 className="text-2xl font-semibold">Staff</h1>
+    <main className="ppbn-page space-y-6">
+      <header className="ppbn-hero space-y-2">
+        <p className="ppbn-kicker">Moderation</p>
+        <h1 className="font-display text-gradient-red text-4xl font-black uppercase tracking-[-0.08em] sm:text-5xl">
+          Staff
+        </h1>
         <p className="text-sm text-muted-foreground">
           Approve, reject, and delete staff profiles.
         </p>
       </header>
 
-      <Card>
+      <Card className="glass-card glow-red border-none rounded-[1.75rem]">
         <CardHeader>
-          <h2 className="text-base font-medium">All staff profiles</h2>
+          <h2 className="font-display text-lg font-black uppercase tracking-[-0.06em] text-white">
+            All staff profiles
+          </h2>
         </CardHeader>
         <CardContent>
           {staffProfiles.length === 0 ? (
@@ -84,13 +89,13 @@ export default async function AdminStaffPage() {
           ) : (
             <ul className="space-y-3">
               {staffProfiles.map((staff) => (
-                <li key={staff.id} className="rounded-md border p-3">
+                <li key={staff.id} className="glass-card rounded-2xl p-4">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div className="min-w-0">
                       <p className="truncate text-sm font-medium">
                         <Link
                           href={`/staff/${staff.slug}`}
-                          className="hover:underline"
+                          className="text-white hover:text-(--accent-gold)"
                         >
                           {staff.displayName}
                         </Link>
@@ -110,7 +115,11 @@ export default async function AdminStaffPage() {
                           value={staff.id}
                         />
                         <input type="hidden" name="approved" value="true" />
-                        <Button type="submit" size="sm" variant="outline">
+                        <Button
+                          type="submit"
+                          size="sm"
+                          className="rounded-sm border border-[rgba(255,255,255,0.14)] bg-transparent text-white hover:bg-[rgba(204,0,0,0.2)] hover:text-white"
+                        >
                           Approve
                         </Button>
                       </form>
@@ -122,7 +131,11 @@ export default async function AdminStaffPage() {
                           value={staff.id}
                         />
                         <input type="hidden" name="approved" value="false" />
-                        <Button type="submit" size="sm" variant="outline">
+                        <Button
+                          type="submit"
+                          size="sm"
+                          className="rounded-sm border border-[rgba(255,255,255,0.14)] bg-transparent text-white hover:bg-[rgba(204,0,0,0.2)] hover:text-white"
+                        >
                           Reject
                         </Button>
                       </form>

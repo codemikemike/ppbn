@@ -100,10 +100,10 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 p-4">
-      <Card className="w-full max-w-md">
+    <div className="ppbn-page min-h-screen flex items-center justify-center bg-[#0a0a0a] p-4">
+      <Card className="glass-card glow-red w-full max-w-md rounded-[1.75rem]">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">
+          <CardTitle className="font-display text-gradient-red text-2xl font-black uppercase tracking-[-0.08em] text-center">
             Forgot password
           </CardTitle>
           <CardDescription className="text-center">
@@ -136,15 +136,21 @@ export default function ForgotPasswordPage() {
                   setEmail(e.target.value)
                 }
                 disabled={isLoading}
-                className={validationErrors.email ? "border-red-500" : ""}
+                className={`ppbn-input ${validationErrors.email ? "border-[#cc0000]" : ""}`}
               />
 
               {validationErrors.email ? (
-                <p className="text-sm text-red-500">{validationErrors.email}</p>
+                <p className="text-sm text-[#ff4444]">
+                  {validationErrors.email}
+                </p>
               ) : null}
             </div>
 
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button
+              type="submit"
+              className="w-full rounded-sm bg-[#cc0000] text-white hover:bg-[#ff0000]"
+              disabled={isLoading}
+            >
               {isLoading ? "Submitting..." : "Send reset email"}
             </Button>
           </form>
@@ -153,7 +159,7 @@ export default function ForgotPasswordPage() {
         <CardFooter className="flex justify-center">
           <Link
             href="/login"
-            className="text-sm text-muted-foreground hover:underline"
+            className="text-sm text-muted-foreground hover:text-white"
           >
             Back to login
           </Link>

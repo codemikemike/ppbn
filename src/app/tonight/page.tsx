@@ -51,9 +51,14 @@ export default async function TonightPage() {
   const data = await tonightService.getTonightData();
 
   return (
-    <main className="mx-auto w-full max-w-5xl px-4 py-10">
-      <header>
-        <h1 className="text-3xl font-semibold">Tonight in Phnom Penh</h1>
+    <main className="ppbn-page mx-auto w-full max-w-7xl px-4 py-10 lg:px-8">
+      <header className="ppbn-hero-frame space-y-4 rounded-[2rem] p-6 sm:p-8">
+        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-(--accent-gold)">
+          Live nightlife
+        </p>
+        <h1 className="font-display text-gradient-red text-4xl font-black uppercase tracking-[-0.08em] sm:text-6xl">
+          Tonight in Phnom Penh
+        </h1>
         <p className="mt-2 text-base text-muted-foreground">
           <span className="font-medium text-foreground">
             {formatTodayLabel(data.date)}
@@ -62,7 +67,10 @@ export default async function TonightPage() {
       </header>
 
       <section className="mt-8" aria-labelledby="events-tonight">
-        <h2 id="events-tonight" className="text-xl font-semibold">
+        <h2
+          id="events-tonight"
+          className="font-display text-xl font-semibold uppercase tracking-[0.24em] text-white"
+        >
           Events Tonight
         </h2>
 
@@ -74,9 +82,11 @@ export default async function TonightPage() {
           <div className="mt-4 grid gap-4 md:grid-cols-2">
             {data.eventsTonight.map((event) => (
               <article key={event.id}>
-                <Card>
+                <Card className="ppbn-card glass-card hover:glow-red transition-all rounded-[1.5rem]">
                   <CardHeader>
-                    <CardTitle className="text-base">{event.title}</CardTitle>
+                    <CardTitle className="font-display text-base text-white">
+                      {event.title}
+                    </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <dl className="text-sm text-muted-foreground">
@@ -109,7 +119,10 @@ export default async function TonightPage() {
       </section>
 
       <section className="mt-10" aria-labelledby="bars-open-tonight">
-        <h2 id="bars-open-tonight" className="text-xl font-semibold">
+        <h2
+          id="bars-open-tonight"
+          className="font-display text-xl font-semibold uppercase tracking-[0.24em] text-white"
+        >
           Bars Open Tonight
         </h2>
 
@@ -120,12 +133,15 @@ export default async function TonightPage() {
         ) : (
           <div className="mt-4 grid gap-4 md:grid-cols-2">
             {data.openBars.map((bar) => (
-              <Card key={bar.id}>
+              <Card
+                key={bar.id}
+                className="ppbn-card glass-card hover:glow-red transition-all rounded-[1.5rem]"
+              >
                 <CardHeader>
-                  <CardTitle className="text-base">
+                  <CardTitle className="font-display text-base text-white">
                     <Link
                       href={`/bars/${bar.slug}`}
-                      className="hover:underline"
+                      className="hover:text-(--accent-gold)"
                     >
                       {bar.name}
                     </Link>
@@ -143,7 +159,10 @@ export default async function TonightPage() {
       </section>
 
       <section className="mt-10" aria-labelledby="live-music-tonight">
-        <h2 id="live-music-tonight" className="text-xl font-semibold">
+        <h2
+          id="live-music-tonight"
+          className="font-display text-xl font-semibold uppercase tracking-[0.24em] text-white"
+        >
           Live Music Tonight
         </h2>
 
@@ -154,12 +173,15 @@ export default async function TonightPage() {
         ) : (
           <div className="mt-4 grid gap-4 md:grid-cols-2">
             {data.liveMusicVenues.map((bar) => (
-              <Card key={bar.id}>
+              <Card
+                key={bar.id}
+                className="ppbn-card glass-card hover:glow-red transition-all rounded-[1.5rem]"
+              >
                 <CardHeader>
-                  <CardTitle className="text-base">
+                  <CardTitle className="font-display text-base text-white">
                     <Link
                       href={`/bars/${bar.slug}`}
-                      className="hover:underline"
+                      className="hover:text-(--accent-gold)"
                     >
                       {bar.name}
                     </Link>
@@ -177,7 +199,10 @@ export default async function TonightPage() {
       </section>
 
       <section className="mt-10" aria-labelledby="featured-bars">
-        <h2 id="featured-bars" className="text-xl font-semibold">
+        <h2
+          id="featured-bars"
+          className="font-display text-xl font-semibold uppercase tracking-[0.24em] text-white"
+        >
           Featured Bars
         </h2>
 
@@ -188,12 +213,15 @@ export default async function TonightPage() {
         ) : (
           <div className="mt-4 grid gap-4 md:grid-cols-2">
             {data.featuredBars.map((bar) => (
-              <Card key={bar.id}>
+              <Card
+                key={bar.id}
+                className="ppbn-card glass-card hover:glow-red transition-all rounded-[1.5rem]"
+              >
                 <CardHeader>
-                  <CardTitle className="text-base">
+                  <CardTitle className="font-display text-base text-white">
                     <Link
                       href={`/bars/${bar.slug}`}
-                      className="hover:underline"
+                      className="hover:text-(--accent-gold)"
                     >
                       {bar.name}
                     </Link>

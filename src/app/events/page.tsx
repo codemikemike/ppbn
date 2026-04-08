@@ -1,6 +1,18 @@
+const Select = (props: SelectHTMLAttributes<HTMLSelectElement>) => {
+  return (
+    <select
+      {...props}
+      className={
+        "h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm " +
+        (props.className ?? "")
+      }
+    />
+  );
+};
 import Link from "next/link";
 
-import type { EventDto, EventType } from "@/domain/dtos/EventDto";
+import type { EventType } from "@/domain/dtos/EventDto";
+import { buildCalendar } from "./calendarUtils";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -47,63 +59,6 @@ const normalizeViewMode = (value: string | undefined): ViewMode => {
   return "list";
 };
 
-const Select = (props: SelectHTMLAttributes<HTMLSelectElement>) => {
-  return (
-    <select
-      {...props}
-      className={
-        "h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm " +
-        (props.className ?? "")
-      }
-    />
-  );
-};
-
-const buildCalendar = (events: EventDto[]) => {
-  const monthBase = events[0]?.startTime
-    ? new Date(events[0].startTime)
-    : new Date();
-  const year = monthBase.getFullYear();
-  const month = monthBase.getMonth();
-
-  const firstDay = new Date(year, month, 1);
-  const lastDay = new Date(year, month + 1, 0);
-
-  const startWeekday = (firstDay.getDay() + 6) % 7; // Monday=0
-  const daysInMonth = lastDay.getDate();
-
-  const cells: Array<{ date: Date | null; events: EventDto[] }> = [];
-
-  for (let i = 0; i < startWeekday; i++) {
-    cells.push({ date: null, events: [] });
-  }
-
-  for (let day = 1; day <= daysInMonth; day++) {
-    const date = new Date(year, month, day);
-    const dayEvents = events.filter((e) => {
-      const d = new Date(e.startTime);
-      return (
-        d.getFullYear() === date.getFullYear() &&
-        d.getMonth() === date.getMonth() &&
-        d.getDate() === date.getDate()
-      );
-    });
-
-    cells.push({ date, events: dayEvents });
-  }
-
-  while (cells.length % 7 !== 0) {
-    cells.push({ date: null, events: [] });
-  }
-
-  const monthLabel = new Intl.DateTimeFormat("en-GB", {
-    year: "numeric",
-    month: "long",
-  }).format(firstDay);
-
-  return { monthLabel, cells };
-};
-
 /**
  * Events listing page with a list and calendar view.
  */
@@ -118,8 +73,15 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
   const selectedTypeValue = resolvedSearchParams.type?.trim() || "";
 
   return (
-    <main className="mx-auto w-full max-w-4xl px-4 py-10">
-      <h1 className="text-2xl font-semibold">Events</h1>
+    <main className="ppbn-page mx-auto w-full max-w-7xl px-4 py-10 lg:px-8">
+      <header className="ppbn-hero-frame space-y-4 rounded-[2rem] p-6 sm:p-8">
+        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-(--accent-gold)">
+          Calendar
+        </p>
+        <h1 className="font-display text-gradient-red text-4xl font-black uppercase tracking-[-0.08em] sm:text-5xl">
+          Events
+        </h1>
+      </header>
 
       <section className="mt-6" aria-label="Filters">
         <form role="search" className="flex flex-wrap items-end gap-3">
@@ -143,7 +105,12 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
             </Select>
           </div>
 
-          <Button type="submit">Apply</Button>
+          <Button
+            type="submit"
+            className="bg-[#cc0000] text-white hover:bg-[#ff0000] rounded-sm"
+          >
+            Apply
+          </Button>
           <Button asChild variant="outline">
             <Link href="/events">Clear</Link>
           </Button>
@@ -171,7 +138,10 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
                   )}
 
                   {calendar.cells.map((cell, index) => (
-                    <div key={index} className="min-h-20 rounded-md border p-2">
+                    <div
+                      key={index}
+                      className="glass-card min-h-20 rounded-md p-2"
+                    >
                       {cell.date ? (
                         <div className="text-muted-foreground">
                           <time dateTime={toIso(cell.date)}>
@@ -207,12 +177,12 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
         <section className="mt-6 space-y-4" aria-label="Upcoming events">
           {events.map((event) => (
             <article key={event.id} className="rounded-md">
-              <Card>
+              <Card className="ppbn-card glass-card hover:glow-red transition-all rounded-[1.5rem]">
                 <CardHeader>
-                  <CardTitle className="text-base">
+                  <CardTitle className="font-display text-base text-white">
                     <Link
                       href={`/events/${event.id}`}
-                      className="hover:underline"
+                      className="hover:text-(--accent-gold)"
                     >
                       {event.title}
                     </Link>
@@ -242,7 +212,9 @@ export default async function EventsPage({ searchParams }: EventsPageProps) {
                     </div>
                     <div className="flex gap-1">
                       <dt className="sr-only">Type</dt>
-                      <dd>{formatEventType(event.eventType)}</dd>
+                      <dd className="rounded-full bg-[rgba(204,0,0,0.18)] px-2 py-1 text-white">
+                        {formatEventType(event.eventType)}
+                      </dd>
                     </div>
                   </dl>
                 </CardContent>

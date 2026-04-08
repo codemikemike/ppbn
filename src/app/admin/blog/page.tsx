@@ -64,17 +64,22 @@ export default async function AdminBlogPage() {
   const posts = await adminService.listBlogPosts();
 
   return (
-    <main className="space-y-6">
-      <header className="space-y-1">
-        <h1 className="text-2xl font-semibold">Blog</h1>
+    <main className="ppbn-page space-y-6">
+      <header className="ppbn-hero space-y-2">
+        <p className="ppbn-kicker">Moderation</p>
+        <h1 className="font-display text-gradient-red text-4xl font-black uppercase tracking-[-0.08em] sm:text-5xl">
+          Blog
+        </h1>
         <p className="text-sm text-muted-foreground">
           Publish, unpublish, and delete blog posts.
         </p>
       </header>
 
-      <Card>
+      <Card className="glass-card glow-red border-none rounded-[1.75rem]">
         <CardHeader>
-          <h2 className="text-base font-medium">All blog posts</h2>
+          <h2 className="font-display text-lg font-black uppercase tracking-[-0.06em] text-white">
+            All blog posts
+          </h2>
         </CardHeader>
         <CardContent>
           {posts.length === 0 ? (
@@ -84,16 +89,16 @@ export default async function AdminBlogPage() {
           ) : (
             <ul className="space-y-3">
               {posts.map((post) => (
-                <li key={post.id} className="rounded-md border p-3">
+                <li key={post.id} className="glass-card rounded-2xl p-4">
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-medium">
+                      <p className="truncate text-sm font-medium text-white">
                         {post.title}
                       </p>
                       <p className="text-xs text-muted-foreground">
                         <Link
                           href={`/blog/${post.slug}`}
-                          className="hover:underline"
+                          className="font-medium text-(--accent-gold) hover:text-white"
                         >
                           /blog/{post.slug}
                         </Link>
@@ -111,7 +116,11 @@ export default async function AdminBlogPage() {
                           name="published"
                           value={post.isPublished ? "false" : "true"}
                         />
-                        <Button type="submit" size="sm" variant="outline">
+                        <Button
+                          type="submit"
+                          size="sm"
+                          className="rounded-sm border border-[rgba(255,255,255,0.14)] bg-transparent text-white hover:bg-[rgba(204,0,0,0.2)] hover:text-white"
+                        >
                           {post.isPublished ? "Unpublish" : "Publish"}
                         </Button>
                       </form>

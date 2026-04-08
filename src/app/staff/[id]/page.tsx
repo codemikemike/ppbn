@@ -41,7 +41,6 @@ const getInitials = (name: string) => {
 
 const StarRating = ({ rating }: { rating: number }) => {
   const clamped = Math.max(0, Math.min(5, Math.round(rating)));
-
   return (
     <div className="flex items-center gap-1" aria-label={`${rating} out of 5`}>
       {Array.from({ length: 5 }, (_, index) => {
@@ -51,8 +50,8 @@ const StarRating = ({ rating }: { rating: number }) => {
             key={index}
             className={
               filled
-                ? "h-4 w-4 fill-foreground text-foreground"
-                : "h-4 w-4 text-muted-foreground"
+                ? "h-4 w-4 text-[#d4af37] fill-[#d4af37]"
+                : "h-4 w-4 text-[#444]"
             }
           />
         );
@@ -90,29 +89,31 @@ export default async function StaffProfilePage({ params }: PageProps) {
     profile.galleryImageUrls.length > 0 ? profile.galleryImageUrls : [null];
 
   return (
-    <main className="mx-auto w-full max-w-4xl px-4 py-10">
+    <main className="ppbn-page mx-auto w-full max-w-7xl px-4 py-10 lg:px-8">
       <nav aria-label="Breadcrumb">
         <Link
           href="/staff"
-          className="text-sm text-muted-foreground hover:underline"
+          className="text-sm text-muted-foreground hover:text-white"
         >
           Back to Staff
         </Link>
       </nav>
 
-      <header className="mt-4">
-        <h1 className="text-2xl font-semibold">{profile.displayName}</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
+      <header className="ppbn-hero-frame mt-4 space-y-4 rounded-[2rem] p-6 sm:p-8">
+        <h1 className="font-display text-gradient-red text-4xl font-black uppercase tracking-[-0.08em] sm:text-5xl">
+          {profile.displayName}
+        </h1>
+        <p className="mt-1 text-sm uppercase tracking-[0.22em] text-muted-foreground">
           {profile.position ?? "—"}
           {profile.currentBar ? ` • ${profile.currentBar}` : ""}
         </p>
       </header>
 
       <section className="mt-6 space-y-6" aria-label="Staff profile">
-        <Card>
+        <Card className="ppbn-card glass-card hover:glow-red transition-all rounded-[1.75rem]">
           <CardContent className="pt-6">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-              <div className="relative h-28 w-28 overflow-hidden rounded-md border">
+              <div className="relative h-28 w-28 overflow-hidden rounded-full bg-[linear-gradient(135deg,#cc0000,#d4af37)] p-px">
                 <ImageWithFallback
                   src={profile.photoUrl}
                   alt={
@@ -120,7 +121,7 @@ export default async function StaffProfilePage({ params }: PageProps) {
                   }
                   placeholderType="staff"
                   fill
-                  className="object-cover"
+                  className="rounded-full object-cover"
                   sizes="112px"
                   priority
                 />
@@ -159,12 +160,16 @@ export default async function StaffProfilePage({ params }: PageProps) {
             </div>
 
             <section className="mt-6" aria-label="Rate this staff member">
-              <h2 className="text-sm font-medium">Your rating</h2>
+              <h2 className="font-display text-sm font-semibold uppercase tracking-[0.22em] text-white">
+                Your rating
+              </h2>
               <StaffStarRating staffId={id} initialRating={userRating} />
             </section>
 
             <section className="mt-6" aria-label="Tip this staff member">
-              <h2 className="text-sm font-medium">Tip</h2>
+              <h2 className="font-display text-sm font-semibold uppercase tracking-[0.22em] text-white">
+                Tip
+              </h2>
               <TipButton staffId={id} />
             </section>
 
@@ -180,10 +185,15 @@ export default async function StaffProfilePage({ params }: PageProps) {
         </Card>
 
         <section aria-label="Gallery">
-          <h2 className="text-sm font-medium">Gallery</h2>
+          <h2 className="font-display text-sm font-semibold uppercase tracking-[0.22em] text-white">
+            Gallery
+          </h2>
           <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-3">
             {gallery.map((src, index) => (
-              <Card key={`${String(src)}-${index}`}>
+              <Card
+                key={`${String(src)}-${index}`}
+                className="ppbn-card glass-card hover:glow-red transition-all rounded-[1.25rem]"
+              >
                 <CardContent className="pt-6">
                   <div className="relative aspect-video w-full overflow-hidden rounded-md">
                     <ImageWithFallback
@@ -202,7 +212,9 @@ export default async function StaffProfilePage({ params }: PageProps) {
         </section>
 
         <section aria-label="Reviews and comments">
-          <h2 className="text-sm font-medium">Reviews and comments</h2>
+          <h2 className="font-display text-sm font-semibold uppercase tracking-[0.22em] text-white">
+            Reviews and comments
+          </h2>
 
           {profile.ratings.length === 0 ? (
             <p className="mt-3 text-sm text-muted-foreground">
@@ -211,7 +223,7 @@ export default async function StaffProfilePage({ params }: PageProps) {
           ) : (
             <div className="mt-3 space-y-4">
               {profile.ratings.map((rating) => (
-                <article key={rating.id} className="rounded-md border p-4">
+                <article key={rating.id} className="glass-card rounded-md p-4">
                   <header className="flex items-start justify-between gap-4">
                     <div className="space-y-1">
                       <p className="text-sm font-medium">

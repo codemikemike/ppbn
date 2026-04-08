@@ -87,23 +87,28 @@ export default async function BlogPostDetailPage({ params }: PageProps) {
   const comments = await blogService.getComments(slug);
 
   return (
-    <main className="mx-auto w-full max-w-5xl px-4 py-10">
-      <div className="flex items-center justify-between gap-4">
-        <h1 className="text-2xl font-semibold">{post.title}</h1>
+    <main className="ppbn-page mx-auto w-full max-w-7xl px-4 py-10 lg:px-8">
+      <header className="ppbn-hero-frame space-y-4 rounded-[2rem] p-6 sm:p-8">
+        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-(--accent-gold)">
+          Article
+        </p>
+        <h1 className="font-display text-gradient-red text-4xl font-black uppercase tracking-[-0.08em] sm:text-5xl">
+          {post.title}
+        </h1>
         <Link
           href="/blog"
-          className="text-sm text-muted-foreground hover:underline"
+          className="text-sm text-muted-foreground hover:text-white"
         >
           Back to Blog
         </Link>
-      </div>
+      </header>
 
       <section
         className="mt-6 grid gap-6 lg:grid-cols-[1fr_280px]"
         aria-label="Blog post"
       >
         <article className="space-y-6">
-          <Card>
+          <Card className="ppbn-card glass-card hover:glow-red transition-all rounded-[1.5rem]">
             <CardContent className="pt-6">
               <div className="relative aspect-video w-full overflow-hidden rounded-md">
                 <ImageWithFallback
@@ -119,9 +124,11 @@ export default async function BlogPostDetailPage({ params }: PageProps) {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="ppbn-card glass-card hover:glow-red transition-all rounded-[1.5rem]">
             <CardHeader>
-              <CardTitle className="text-base">Post details</CardTitle>
+              <CardTitle className="font-display text-base text-white">
+                Post details
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <dl className="grid grid-cols-1 gap-4 text-sm sm:grid-cols-2">
@@ -160,21 +167,25 @@ export default async function BlogPostDetailPage({ params }: PageProps) {
             </CardContent>
           </Card>
 
-          <Card>
+          <Card className="ppbn-card glass-card hover:glow-red transition-all rounded-[1.5rem]">
             <CardHeader>
-              <CardTitle className="text-base">Content</CardTitle>
+              <CardTitle className="font-display text-base text-white">
+                Content
+              </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="whitespace-pre-line text-sm text-muted-foreground">
+              <div className="whitespace-pre-line text-sm leading-7 text-muted-foreground">
                 {post.content}
               </div>
             </CardContent>
           </Card>
 
           <section aria-label="Comments">
-            <Card>
+            <Card className="ppbn-card glass-card hover:glow-red transition-all rounded-[1.5rem]">
               <CardHeader>
-                <CardTitle className="text-base">Comments</CardTitle>
+                <CardTitle className="font-display text-base text-white">
+                  Comments
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <CommentList comments={comments} />
@@ -185,19 +196,24 @@ export default async function BlogPostDetailPage({ params }: PageProps) {
         </article>
 
         <aside className="space-y-4" aria-label="Related posts">
-          <h2 className="text-sm font-medium">Related posts</h2>
+          <h2 className="font-display text-sm font-semibold uppercase tracking-[0.22em] text-white">
+            Related posts
+          </h2>
 
           {relatedPosts.length === 0 ? (
             <p className="text-sm text-muted-foreground">No related posts.</p>
           ) : (
             <div className="space-y-3">
               {relatedPosts.map((related) => (
-                <Card key={related.id}>
+                <Card
+                  key={related.id}
+                  className="ppbn-card glass-card hover:glow-red transition-all rounded-[1.25rem]"
+                >
                   <CardHeader>
-                    <CardTitle className="text-sm">
+                    <CardTitle className="font-display text-sm text-white">
                       <Link
                         href={`/blog/${related.slug}`}
-                        className="hover:underline"
+                        className="hover:text-(--accent-gold)"
                       >
                         {related.title}
                       </Link>

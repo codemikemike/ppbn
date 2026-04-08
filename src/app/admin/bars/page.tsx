@@ -64,17 +64,22 @@ export default async function AdminBarsPage() {
   const bars = await adminService.listBars();
 
   return (
-    <main className="space-y-6">
-      <header className="space-y-1">
-        <h1 className="text-2xl font-semibold">Bars</h1>
+    <main className="ppbn-page space-y-6">
+      <header className="ppbn-hero space-y-2">
+        <p className="ppbn-kicker">Moderation</p>
+        <h1 className="font-display text-gradient-red text-4xl font-black uppercase tracking-[-0.08em] sm:text-5xl">
+          Bars
+        </h1>
         <p className="text-sm text-muted-foreground">
           Approve, reject, and delete bars.
         </p>
       </header>
 
-      <Card>
+      <Card className="glass-card glow-red border-none rounded-[1.75rem]">
         <CardHeader>
-          <h2 className="text-base font-medium">All bars</h2>
+          <h2 className="font-display text-lg font-black uppercase tracking-[-0.06em] text-white">
+            All bars
+          </h2>
         </CardHeader>
         <CardContent>
           {bars.length === 0 ? (
@@ -82,10 +87,15 @@ export default async function AdminBarsPage() {
           ) : (
             <ul className="space-y-3">
               {bars.map((bar) => (
-                <li key={bar.id} className="space-y-2 rounded-md border p-3">
+                <li
+                  key={bar.id}
+                  className="glass-card space-y-2 rounded-2xl p-4"
+                >
                   <div className="flex flex-wrap items-center justify-between gap-3">
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-medium">{bar.name}</p>
+                      <p className="truncate text-sm font-medium text-white">
+                        {bar.name}
+                      </p>
                       <p className="text-xs text-muted-foreground">
                         {bar.area} · {bar.category} ·{" "}
                         {bar.isApproved ? "Approved" : "Pending"}
@@ -96,7 +106,7 @@ export default async function AdminBarsPage() {
                     <div className="flex flex-wrap items-center gap-2">
                       <Link
                         href={`/dashboard/bars/${bar.slug}/edit`}
-                        className="text-xs hover:underline"
+                        className="text-xs font-medium text-(--accent-gold) hover:text-white"
                       >
                         Edit
                       </Link>
@@ -104,7 +114,11 @@ export default async function AdminBarsPage() {
                       <form action={setApproval}>
                         <input type="hidden" name="barId" value={bar.id} />
                         <input type="hidden" name="approved" value="true" />
-                        <Button type="submit" size="sm" variant="outline">
+                        <Button
+                          type="submit"
+                          size="sm"
+                          className="rounded-sm border border-[rgba(255,255,255,0.14)] bg-transparent text-white hover:bg-[rgba(204,0,0,0.2)] hover:text-white"
+                        >
                           Approve
                         </Button>
                       </form>
@@ -112,7 +126,11 @@ export default async function AdminBarsPage() {
                       <form action={setApproval}>
                         <input type="hidden" name="barId" value={bar.id} />
                         <input type="hidden" name="approved" value="false" />
-                        <Button type="submit" size="sm" variant="outline">
+                        <Button
+                          type="submit"
+                          size="sm"
+                          className="rounded-sm border border-[rgba(255,255,255,0.14)] bg-transparent text-white hover:bg-[rgba(204,0,0,0.2)] hover:text-white"
+                        >
                           Reject
                         </Button>
                       </form>

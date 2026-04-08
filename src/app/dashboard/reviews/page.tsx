@@ -25,10 +25,12 @@ export default async function DashboardReviewsPage() {
   const reviews = await authService.listMyReviews(session.user.id);
 
   return (
-    <main className="mx-auto w-full max-w-3xl px-4 py-10">
-      <Card>
+    <main className="ppbn-page mx-auto w-full max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
+      <Card className="glass-card glow-red border-none rounded-[1.75rem]">
         <CardHeader>
-          <CardTitle>My reviews</CardTitle>
+          <CardTitle className="font-display text-2xl font-black uppercase tracking-[-0.06em] text-white">
+            My reviews
+          </CardTitle>
         </CardHeader>
         <CardContent>
           {reviews.length === 0 ? (
@@ -38,11 +40,11 @@ export default async function DashboardReviewsPage() {
           ) : (
             <ul className="space-y-3">
               {reviews.map((review) => (
-                <li key={review.id} className="rounded-md border p-3">
+                <li key={review.id} className="glass-card rounded-2xl p-4">
                   <div className="flex flex-wrap items-center justify-between gap-2">
                     <Link
                       href={`/bars/${review.bar.slug}`}
-                      className="text-sm font-medium hover:underline"
+                      className="font-medium text-white transition-colors hover:text-(--accent-gold)"
                     >
                       {review.bar.name}
                     </Link>
@@ -52,7 +54,7 @@ export default async function DashboardReviewsPage() {
                   </div>
 
                   {review.content.trim().length > 0 ? (
-                    <p className="mt-2 text-sm leading-relaxed">
+                    <p className="mt-2 text-sm leading-relaxed text-white">
                       {review.content}
                     </p>
                   ) : (

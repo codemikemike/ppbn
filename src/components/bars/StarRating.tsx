@@ -108,8 +108,8 @@ export default function StarRating({
               <Star
                 className={
                   filled
-                    ? "h-5 w-5 fill-[var(--accent-gold)] text-[var(--accent-gold)] transition-transform"
-                    : "h-5 w-5 text-muted-foreground"
+                    ? "h-5 w-5 text-[#d4af37] fill-[#d4af37] transition-transform"
+                    : "h-5 w-5 text-[#444]"
                 }
               />
             </button>

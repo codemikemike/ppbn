@@ -42,8 +42,15 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
   const nextPage = hasNextPage ? page + 1 : null;
 
   return (
-    <main className="mx-auto w-full max-w-3xl px-4 py-10">
-      <h1 className="text-2xl font-semibold">Blog</h1>
+    <main className="ppbn-page mx-auto w-full max-w-7xl px-4 py-10 lg:px-8">
+      <header className="ppbn-hero-frame space-y-4 rounded-[2rem] p-6 sm:p-8">
+        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-(--accent-gold)">
+          Editorial
+        </p>
+        <h1 className="font-display text-gradient-red text-4xl font-black uppercase tracking-[-0.08em] sm:text-5xl">
+          Blog
+        </h1>
+      </header>
 
       {posts.length === 0 ? (
         <p className="mt-6 text-sm text-muted-foreground">
@@ -58,19 +65,24 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
 
             return (
               <article key={post.id} className="rounded-md">
-                <Card>
+                <Card className="ppbn-card glass-card hover:glow-red transition-all rounded-[1.5rem]">
                   <CardHeader>
-                    <CardTitle className="text-base">
+                    <CardTitle className="font-display text-base text-white">
                       <Link
                         href={`/blog/${post.slug}`}
-                        className="hover:underline"
+                        className="hover:text-(--accent-gold)"
                       >
                         {post.title}
                       </Link>
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-sm text-muted-foreground">{excerpt}</p>
+                    <span className="ppbn-pill mb-3 inline-flex bg-[rgba(204,0,0,0.15)] text-white">
+                      {post.category ?? "Nightlife"}
+                    </span>
+                    <p className="text-sm leading-7 text-muted-foreground">
+                      {excerpt}
+                    </p>
 
                     <dl className="mt-4 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
                       <div className="flex gap-1">
@@ -101,7 +113,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
         {previousPage ? (
           <Link
             href={buildBlogHref(previousPage)}
-            className="text-sm text-muted-foreground hover:underline"
+            className="text-sm text-muted-foreground hover:text-white"
           >
             Previous
           </Link>
@@ -114,7 +126,7 @@ export default async function BlogPage({ searchParams }: BlogPageProps) {
         {nextPage ? (
           <Link
             href={buildBlogHref(nextPage)}
-            className="text-sm text-muted-foreground hover:underline"
+            className="text-sm text-muted-foreground hover:text-white"
           >
             Next
           </Link>

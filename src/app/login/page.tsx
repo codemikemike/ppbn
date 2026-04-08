@@ -64,10 +64,10 @@ function LoginForm() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 p-4">
-      <Card className="w-full max-w-md">
+    <div className="ppbn-page min-h-screen flex items-center justify-center bg-[#0a0a0a] p-4">
+      <Card className="glass-card glow-red w-full max-w-md rounded-[1.75rem]">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">
+          <CardTitle className="font-display text-gradient-red text-2xl font-black uppercase tracking-[-0.08em] text-center">
             Login
           </CardTitle>
           <CardDescription className="text-center">
@@ -119,12 +119,12 @@ function LoginForm() {
                   }
                   disabled={isLoading}
                   autoComplete="current-password"
-                  className="pr-10"
+                  className="ppbn-input pr-10"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white"
                   disabled={isLoading}
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
@@ -137,17 +137,21 @@ function LoginForm() {
               </div>
             </div>
 
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button
+              type="submit"
+              className="w-full rounded-sm bg-[#cc0000] text-white hover:bg-[#ff0000]"
+              disabled={isLoading}
+            >
               {isLoading ? "Signing in..." : "Login"}
             </Button>
           </form>
         </CardContent>
         <CardFooter className="flex justify-center">
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-muted-foreground">
             Don&apos;t have an account?{" "}
             <Link
               href="/register"
-              className="text-primary hover:underline font-medium"
+              className="font-medium text-(--accent-gold) hover:text-white"
             >
               Register
             </Link>
