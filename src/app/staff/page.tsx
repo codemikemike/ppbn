@@ -4,7 +4,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ImageWithFallback } from "@/components/shared/ImageWithFallback";
 import { staffService } from "@/services/staffService";
 import { Star } from "lucide-react";
 
@@ -90,19 +89,17 @@ export default async function StaffPage({ searchParams }: StaffPageProps) {
       </section>
 
       {profiles.length === 0 ? (
-        <p className="mt-6 text-sm text-muted-foreground">
-          No staff profiles found.
-        </p>
+        <div className="mt-6 flex flex-col items-center justify-center rounded-xl glass-card p-10 text-center">
+          <p className="text-2xl font-display text-white mb-2">No staff profiles</p>
+          <p className="text-sm text-[#888]">Check back soon for new staff.</p>
+        </div>
       ) : (
-        <section
-          className="mt-6 space-y-4"
-          aria-label="Approved staff profiles"
-        >
+        <section className="mt-6 space-y-4" aria-label="Approved staff profiles">
           {profiles.map((profile) => (
             <article key={profile.id} className="rounded-md">
-              <Card className="ppbn-card glass-card hover:glow-red transition-all rounded-[1.5rem]">
+              <Card className="glass-card hover:glow-red transition-all rounded-[1.5rem]">
                 <CardHeader>
-                  <CardTitle className="font-display text-base text-white">
+                  <CardTitle className="font-display text-white text-xl">
                     <Link
                       href={`/staff/${profile.id}`}
                       className="hover:text-(--accent-gold)"
@@ -112,38 +109,24 @@ export default async function StaffPage({ searchParams }: StaffPageProps) {
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex gap-4">
-                    <div className="relative h-16 w-16 overflow-hidden rounded-full bg-[linear-gradient(135deg,#cc0000,#d4af37)] p-[1px]">
-                      <ImageWithFallback
-                        src={profile.photoUrl}
-                        alt={
-                          profile.photoAlt ??
-                          `${profile.displayName} profile photo`
-                        }
-                        placeholderType="staff"
-                        fill
-                        className="rounded-full object-cover"
-                        sizes="64px"
-                      />
+                  <div className="flex gap-4 items-center">
+                    <div className="flex h-16 w-16 items-center justify-center rounded-full gradient-red border-2 border-(--accent-gold) text-white font-display text-2xl font-bold">
+                      {profile.displayName?.[0] ?? "?"}
                     </div>
-
                     <dl className="grid flex-1 grid-cols-1 gap-2 text-sm sm:grid-cols-2">
                       <div>
                         <dt className="text-muted-foreground">Role</dt>
-                        <dd>{profile.position ?? "—"}</dd>
+                        <dd>{profile.position ?? "\u2014"}</dd>
                       </div>
                       <div>
                         <dt className="text-muted-foreground">Bar</dt>
-                        <dd>{profile.currentBar ?? "—"}</dd>
+                        <dd>{profile.currentBar ?? "\u2014"}</dd>
                       </div>
                       <div>
                         <dt className="text-muted-foreground">Rating</dt>
                         <dd>
                           <StarRating rating={profile.averageRating} />
-                          <span className="text-muted-foreground">
-                            {" "}
-                            ({profile.ratingCount})
-                          </span>
+                          <span className="text-muted-foreground"> ({profile.ratingCount})</span>
                         </dd>
                       </div>
                     </dl>

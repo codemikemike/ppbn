@@ -258,15 +258,9 @@ export default async function BarDetailPage({ params }: PageProps) {
                   </div>
 
                   {visibleReviews.length === 0 ? (
-                    <div className="mt-4">
-                      <div className="glass-card bg-[#181818] border border-border/70 rounded-xl p-6 flex flex-col items-center justify-center">
-                        <p className="text-lg font-semibold text-white mb-2">
-                          No reviews yet
-                        </p>
-                        <p className="text-sm text-[#888]">
-                          Be the first to review this bar!
-                        </p>
-                      </div>
+                    <div className="mt-4 flex flex-col items-center justify-center rounded-xl glass-card p-10 text-center">
+                      <p className="text-lg font-display text-white mb-2">No reviews yet</p>
+                      <p className="text-sm text-[#888]">Be the first to review this bar!</p>
                     </div>
                   ) : (
                     <div className="mt-4 space-y-4">

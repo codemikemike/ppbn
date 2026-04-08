@@ -111,11 +111,22 @@ export default async function Home() {
                     <ArrowRight className="h-4 w-4" />
                   </Link>
                 </Button>
-                <Button className="ppbn-button" variant="outline" asChild>
-                  <Link
-                    href="/events"
-                    className="inline-flex items-center gap-2"
-                  >
+                <Button
+                  className="ppbn-button border-2 border-(--accent-red) text-white hover:bg-(--accent-red) hover:text-white transition-all"
+                  variant="outline"
+                  asChild
+                >
+                  <Link href="/map" className="inline-flex items-center gap-2">
+                    View Map
+                    <MapPinned className="h-4 w-4" />
+                  </Link>
+                </Button>
+                <Button
+                  className="ppbn-button border-2 border-(--accent-red) text-white hover:bg-(--accent-red) hover:text-white transition-all"
+                  variant="outline"
+                  asChild
+                >
+                  <Link href="/events" className="inline-flex items-center gap-2">
                     Tonight&apos;s Events
                     <CalendarDays className="h-4 w-4" />
                   </Link>

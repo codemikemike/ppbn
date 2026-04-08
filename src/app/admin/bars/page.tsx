@@ -1,154 +1,83 @@
-import Link from "next/link";
-import { redirect } from "next/navigation";
-import { revalidatePath } from "next/cache";
-import { getServerSession } from "next-auth";
+"use client";
 
-import { adminService } from "@/services/adminService";
-import { authOptions } from "@/lib/auth";
+import { useState } from "react";
+import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
-/**
- * Forces this page to be rendered dynamically per-request.
- */
-export const dynamic = "force-dynamic";
+export default function AdminBarsPage() {
+  const [showForm, setShowForm] = useState(false);
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [address, setAddress] = useState("");
+  const [area, setArea] = useState("Riverside");
+  const [category, setCategory] = useState("HostessBar");
+  const [phone, setPhone] = useState("");
+  const [openingHours, setOpeningHours] = useState("18:00 - 02:00");
+  const [latitude, setLatitude] = useState("");
+  const [longitude, setLongitude] = useState("");
+  const [isFeatured, setIsFeatured] = useState(false);
+  const [message, setMessage] = useState("");
 
-const setApproval = async (formData: FormData) => {
-  "use server";
-
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    redirect("/login");
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    try {
+      const res = await fetch("/api/admin/bars", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, description, address, area, category, phone, openingHours, latitude: parseFloat(latitude) || null, longitude: parseFloat(longitude) || null, isFeatured }),
+      });
+      if (res.ok) {
+        setMessage("Bar created!");
+        setShowForm(false);
+        setName(""); setDescription(""); setAddress(""); setPhone("");
+      } else {
+        const err = await res.json();
+        setMessage(err.error || "Failed");
+      }
+    } catch {
+      setMessage("Network error");
+    }
   }
-
-  if (session.user.role !== "Admin") {
-    redirect("/");
-  }
-
-  const barId = formData.get("barId");
-  const approved = formData.get("approved");
-
-  if (typeof barId !== "string" || !barId.trim()) return;
-  if (approved !== "true" && approved !== "false") return;
-
-  await adminService.setBarApproval(session.user.id, barId, {
-    approved: approved === "true",
-  });
-
-  revalidatePath("/admin/bars");
-};
-
-const deleteBar = async (formData: FormData) => {
-  "use server";
-
-  const session = await getServerSession(authOptions);
-  if (!session) {
-    redirect("/login");
-  }
-
-  if (session.user.role !== "Admin") {
-    redirect("/");
-  }
-
-  const barId = formData.get("barId");
-  if (typeof barId !== "string" || !barId.trim()) return;
-
-  await adminService.deleteBar(session.user.id, barId);
-  revalidatePath("/admin/bars");
-};
-
-/**
- * Admin bars page.
- */
-export default async function AdminBarsPage() {
-  const bars = await adminService.listBars();
 
   return (
-    <main className="ppbn-page space-y-6">
-      <header className="ppbn-hero space-y-2">
-        <p className="ppbn-kicker">Moderation</p>
-        <h1 className="font-display text-gradient-red text-4xl font-black uppercase tracking-[-0.08em] sm:text-5xl">
-          Bars
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          Approve, reject, and delete bars.
-        </p>
-      </header>
-
-      <Card className="glass-card glow-red border-none rounded-[1.75rem]">
-        <CardHeader>
-          <h2 className="font-display text-lg font-black uppercase tracking-[-0.06em] text-white">
-            All bars
-          </h2>
-        </CardHeader>
-        <CardContent>
-          {bars.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No bars found.</p>
-          ) : (
-            <ul className="space-y-3">
-              {bars.map((bar) => (
-                <li
-                  key={bar.id}
-                  className="glass-card space-y-2 rounded-2xl p-4"
-                >
-                  <div className="flex flex-wrap items-center justify-between gap-3">
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-medium text-white">
-                        {bar.name}
-                      </p>
-                      <p className="text-xs text-muted-foreground">
-                        {bar.area} · {bar.category} ·{" "}
-                        {bar.isApproved ? "Approved" : "Pending"}
-                        {bar.deletedAt ? " · Deleted" : ""}
-                      </p>
-                    </div>
-
-                    <div className="flex flex-wrap items-center gap-2">
-                      <Link
-                        href={`/dashboard/bars/${bar.slug}/edit`}
-                        className="text-xs font-medium text-(--accent-gold) hover:text-white"
-                      >
-                        Edit
-                      </Link>
-
-                      <form action={setApproval}>
-                        <input type="hidden" name="barId" value={bar.id} />
-                        <input type="hidden" name="approved" value="true" />
-                        <Button
-                          type="submit"
-                          size="sm"
-                          className="rounded-sm border border-[rgba(255,255,255,0.14)] bg-transparent text-white hover:bg-[rgba(204,0,0,0.2)] hover:text-white"
-                        >
-                          Approve
-                        </Button>
-                      </form>
-
-                      <form action={setApproval}>
-                        <input type="hidden" name="barId" value={bar.id} />
-                        <input type="hidden" name="approved" value="false" />
-                        <Button
-                          type="submit"
-                          size="sm"
-                          className="rounded-sm border border-[rgba(255,255,255,0.14)] bg-transparent text-white hover:bg-[rgba(204,0,0,0.2)] hover:text-white"
-                        >
-                          Reject
-                        </Button>
-                      </form>
-
-                      <form action={deleteBar}>
-                        <input type="hidden" name="barId" value={bar.id} />
-                        <Button type="submit" size="sm" variant="destructive">
-                          Delete
-                        </Button>
-                      </form>
-                    </div>
-                  </div>
-                </li>
-              ))}
-            </ul>
-          )}
-        </CardContent>
-      </Card>
-    </main>
+    <div className="p-6">
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold text-white">Manage Bars</h1>
+        <Button onClick={() => setShowForm(!showForm)} className="bg-[#cc0000] hover:bg-[#ff0000] text-white">
+          {showForm ? "Cancel" : "Add New Bar"}
+        </Button>
+      </div>
+      {message && <p className="mb-4 text-green-400">{message}</p>}
+      {showForm && (
+        <Card className="glass-card mb-6 border-[#2a2a2a]">
+          <CardHeader><h2 className="text-lg font-semibold text-white">Create New Bar</h2></CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div><Label className="text-gray-300">Bar Name *</Label><Input value={name} onChange={e => setName(e.target.value)} required className="bg-[#111] border-[#2a2a2a] text-white" /></div>
+              <div><Label className="text-gray-300">Description</Label><textarea value={description} onChange={e => setDescription(e.target.value)} rows={3} className="w-full bg-[#111] border border-[#2a2a2a] text-white rounded p-2" /></div>
+              <div><Label className="text-gray-300">Address</Label><Input value={address} onChange={e => setAddress(e.target.value)} className="bg-[#111] border-[#2a2a2a] text-white" /></div>
+              <div className="grid grid-cols-2 gap-4">
+                <div><Label className="text-gray-300">Area</Label><select value={area} onChange={e => setArea(e.target.value)} className="w-full bg-[#111] border border-[#2a2a2a] text-white rounded p-2">{["Riverside","BKK1","Street136","Street104"].map(a => <option key={a}>{a}</option>)}</select></div>
+                <div><Label className="text-gray-300">Category</Label><select value={category} onChange={e => setCategory(e.target.value)} className="w-full bg-[#111] border border-[#2a2a2a] text-white rounded p-2">{["HostessBar","Pub","Club","RooftopBar","CocktailBar","SportsBar","KaraokeBar","LiveMusic"].map(c => <option key={c}>{c}</option>)}</select></div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div><Label className="text-gray-300">Phone</Label><Input value={phone} onChange={e => setPhone(e.target.value)} className="bg-[#111] border-[#2a2a2a] text-white" /></div>
+                <div><Label className="text-gray-300">Opening Hours</Label><Input value={openingHours} onChange={e => setOpeningHours(e.target.value)} className="bg-[#111] border-[#2a2a2a] text-white" /></div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div><Label className="text-gray-300">Latitude</Label><Input value={latitude} onChange={e => setLatitude(e.target.value)} placeholder="11.5564" className="bg-[#111] border-[#2a2a2a] text-white" /></div>
+                <div><Label className="text-gray-300">Longitude</Label><Input value={longitude} onChange={e => setLongitude(e.target.value)} placeholder="104.9282" className="bg-[#111] border-[#2a2a2a] text-white" /></div>
+              </div>
+              <div className="flex items-center gap-2"><input type="checkbox" id="featured" checked={isFeatured} onChange={e => setIsFeatured(e.target.checked)} /><Label htmlFor="featured" className="text-gray-300">Featured bar</Label></div>
+              <Button type="submit" className="bg-[#cc0000] hover:bg-[#ff0000] text-white w-full">Create Bar</Button>
+            </form>
+          </CardContent>
+        </Card>
+      )}
+      <p className="text-gray-400 text-sm"><Link href="/bars" className="text-[#cc0000] hover:underline">View bars →</Link></p>
+    </div>
   );
 }

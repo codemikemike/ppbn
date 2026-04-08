@@ -111,6 +111,7 @@ export default function StarRating({
                     ? "h-5 w-5 text-[#d4af37] fill-[#d4af37] transition-transform"
                     : "h-5 w-5 text-[#444]"
                 }
+                style={filled ? { color: '#d4af37', fill: '#d4af37' } : { color: '#444' }}
               />
             </button>
           );
